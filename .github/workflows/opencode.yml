@@ -15,9 +15,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run OpenCode Agent
-        uses: opencodeai/opencode-agent-action@v1
+        uses: docker://opencodeai/agent:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_MODEL: openai/gpt-4o
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
