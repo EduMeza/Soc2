@@ -1,0 +1,43 @@
+# ==============================
+# SOC2 - Git Ignore
+# ==============================
+
+# Node / React
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# SQLite - archivos temporales
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Reportes generados
+backend/output/
+
+# Logs
+*.log
+
+# Variables de entorno / secretos
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
