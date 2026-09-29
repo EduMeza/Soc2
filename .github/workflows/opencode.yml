@@ -18,4 +18,6 @@ jobs:
         uses: anomalyco/opencode-actions/run@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENCODE_MODEL: anthropic/claude-3-5-sonnet
+          OPENCODE_MODEL: openai/gpt-4o # Usará el modelo inteligente GPT-4o de OpenAI
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Llama al secreto seguro que guardamos en GitHub
+
