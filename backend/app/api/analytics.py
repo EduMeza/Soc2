@@ -8,9 +8,6 @@ from ..services.correlation import find_correlations
 from ..services.mitre import classify_mitre
 from ..services.risk import calculate_risk_score, calculate_agent_risk_scores
 from ..services.geoip import resolve_geoip
-from ..models.event import Event
-from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, Query
 
 router = APIRouter(tags=["analytics"])
 
