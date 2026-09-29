@@ -1,0 +1,32 @@
+{
+  "shifts": {
+    "mañana": {
+      "time": "07:00",
+      "label": "Mañana (07:00)",
+      "enabled": true
+    },
+    "tarde": {
+      "time": "16:00",
+      "label": "Tarde (16:00)",
+      "enabled": true
+    },
+    "noche": {
+      "time": "23:00",
+      "label": "Noche (23:00)",
+      "enabled": true
+    }
+  },
+  "auto_enabled": true,
+  "last_run": {
+    "mañana": "2026-09-18",
+    "tarde": "2026-09-18",
+    "noche": "2026-09-18"
+  },
+  "analyst_default": "Eduardo Meza",
+  "entity_default": "",
+  "template_default": "ejecutivo",
+  "output_formats": [
+    "pdf",
+    "json"
+  ]
+}

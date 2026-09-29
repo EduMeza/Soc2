@@ -1,0 +1,35 @@
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+class Event(Base):
+    __tablename__ = "events"
+    id = Column(Integer, primary_key=True, index=True)
+    event_uid = Column(String, index=True)
+    timestamp = Column(DateTime, index=True)
+    agent = Column(String)
+    hostname = Column(String, index=True)
+    source = Column(String)
+    event_type = Column(String, index=True)
+    rule_id = Column(String, index=True)
+    rule_description = Column(String)
+    severity = Column(String, index=True)
+    original_severity = Column(String)
+    source_ip = Column(String, index=True)
+    destination_ip = Column(String, index=True)
+    source_port = Column(Integer)
+    destination_port = Column(Integer)
+    protocol = Column(String)
+    username = Column(String)
+    process = Column(String)
+    command = Column(String)
+    file_path = Column(String)
+    cve = Column(String)
+    mitre_tactic = Column(String, index=True)
+    mitre_technique = Column(String, index=True)
+    raw_event = Column(String)
+    risk_score = Column(Float)
+    correlation_id = Column(String, index=True)
+    status = Column(String)
+    import_batch_id = Column(String, index=True)
+    created_at = Column(DateTime, server_default=func.now())

@@ -1,0 +1,39 @@
+{
+  "header": "Reporte SOC 24x7",
+  "entity": "Organización",
+  "analyst": "SOC Analyst",
+  "period": "Turno Noche (23:00)",
+  "generated_at": "2026-09-29T13:03:17.648184Z",
+  "summary": {
+    "total_events": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "agents_affected": 0,
+    "hosts_affected": 0
+  },
+  "severity_counts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 0
+  },
+  "mitre_tactics": {},
+  "correlations": [],
+  "iocs": {
+    "file_hashes": [],
+    "domains": [],
+    "urls": []
+  },
+  "timeline": [],
+  "findings": [],
+  "recommendations": [
+    "Revisar y bloquear IPs maliciosas en firewall/IDS",
+    "Aislar hosts comprometidos y realizar análisis forense",
+    "Actualizar firmas de detección en SIEM/EDR",
+    "Revisar políticas de ejecución de scripts (PowerShell, CMD)",
+    "Implementar monitoreo de credenciales y accesos privilegiados"
+  ],
+  "events": []
+}

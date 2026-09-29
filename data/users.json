@@ -1,0 +1,10 @@
+{
+  "admin": {
+    "document_number": "admin",
+    "name": "Administrador SOC",
+    "role": "ADMIN",
+    "password_hash": "$2b$12$YpPMQYA3KSOCiLzBoV7ghuFZf9.ql4RfTf2W5El6gt3EAELn/GcEm",
+    "status": "ACTIVE",
+    "must_change_password": false
+  }
+}

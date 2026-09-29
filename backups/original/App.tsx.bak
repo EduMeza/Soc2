@@ -1,0 +1,514 @@
+import React, { useEffect, useState } from 'react';
+
+interface CsvEvent {
+  Timestamp: string;
+  Host: string;
+  Severidad: string;
+  Regla: string;
+  Descripcion: string;
+  Origen: string;
+  Destino: string;
+  CVE: string;
+  Proceso: string;
+}
+
+export default function App() {
+  const [events, setEvents] = useState<CsvEvent[]>([]);
+  const [summary, setSummary] = useState<{ total_events: number; critical: number; high: number; media: number; agents: number } | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [forceChange, setForceChange] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('resumen');
+  const [importStatus, setImportStatus] = useState('');
+  const [reportFormat, setReportFormat] = useState('ejecutivo');
+  const [reportOutput, setReportOutput] = useState('pdf');
+  const [mitreEvents, setMitreEvents] = useState<any[]>([]);
+
+  // Cargar datos locales del archivo CSV de ejemplo (reutilizado del proyecto original)
+  useEffect(() => {
+    fetch('/sample_events.json')
+      .then((r) => r.json())
+      .catch((err) => console.error('No se pudo cargar sample_events.json:', err))
+      .then((data: CsvEvent[]) => {
+        if (Array.isArray(data)) {
+          const parsed = data.map((e) => ({ ...e, Severidad: (e.Severidad || '').toLowerCase() }));
+          setEvents(parsed);
+          // Calcular métricas reales basadas en los datos del archivo
+          const total = parsed.length;
+          const critical = parsed.filter((e) => e.Severidad.includes('cr') || e.Severidad === 'critical').length;
+          const high = parsed.filter((e) => e.Severidad.includes('alta') || e.Severidad === 'high').length;
+          const media = parsed.filter((e) => e.Severidad.includes('media') || e.Severidad === 'media').length;
+          const agents = new Set(parsed.map((e) => e.Host)).size;
+          setSummary({ total_events: total, critical, high, media, agents });
+          setMessage('Datos cargados: ' + total + ' eventos de sample_events_1.csv');
+        } else {
+          setEvents([]);
+        }
+      });
+  }, []);
+
+  // También intentar conectar con el backend reutilizado para datos adicionales
+  useEffect(() => {
+    fetch('http://localhost:8000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: '5205342', password: '5205342' }),
+    })
+      .catch(() => console.log('Backend no disponible localmente'));
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setLoggedIn(true);
+        setForceChange(data.force_change);
+        setMessage('Login exitoso' + (data.force_change ? ' - Cambio de contraseña requerido' : ''));
+      } else {
+        setMessage(data.detail || 'Error en login');
+      }
+    } catch {
+      setMessage('No se puede conectar al servidor');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('http://localhost:8000/api/events/import', { method: 'POST', body: formData });
+      const data = await res.json();
+      setImportStatus(data.message || (res.ok ? 'Importación completa' : 'Error'));
+    } catch {
+      setImportStatus('Error de conexión');
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/reports/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format: reportOutput, report_type: reportFormat, include_timeline: true }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage('Reporte generado (' + reportFormat + ' / ' + reportOutput + '): ' + (data.data?.header || 'OK'));
+      } else {
+        setMessage('Error al generar reporte');
+      }
+    } catch {
+      setMessage('Error al generar reporte');
+    }
+  };
+
+  if (!loggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
+        <form onSubmit={handleLogin} className="bg-slate-900 border border-slate-800 rounded-3xl p-10 w-full max-w-md shadow-2xl">
+          <h1 className="text-3xl font-extrabold text-slate-50 mb-8 text-center">SOC Command Center</h1>
+          <p className="text-sm text-slate-400 mb-6 text-center">Usuario inicial: <strong>5205342</strong></p>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-slate-300 mb-1">Usuario</label>
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="5205342" />
+          </div>
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-slate-300 mb-1">Contraseña</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="5205342" />
+          </div>
+          <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition shadow-lg">Iniciar sesión</button>
+          {message && <p className="mt-4 text-sm text-amber-400 text-center">{message}</p>}
+          {forceChange && <div className="mt-4 p-4 bg-amber-900/30 border border-amber-700 rounded-xl text-amber-300 text-sm text-center">Primer acceso: debe cambiar la contraseña.</div>}
+        </form>
+      </div>
+    );
+  }
+
+  const severityCounts = {
+    critical: events.filter((e) => (e.Severidad || '').toLowerCase() === 'crítico').length,
+    high: events.filter((e) => (e.Severidad || '').toLowerCase() === 'alta').length,
+    media: events.filter((e) => (e.Severidad || '').toLowerCase() === 'media').length,
+  };
+  const agents = Array.from(new Set(events.map((e) => e.Host).filter(Boolean)));
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 animate-fade-in">
+      {/* Header */}
+      <header className="flex items-center justify-between px-8 py-6 bg-slate-900/80 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+          <h1 className="text-2xl font-extrabold tracking-tight">SOC 24x7</h1>
+          <span className="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">Dashboard SOC</span>
+        </div>
+        <nav className="flex gap-2 text-sm font-medium">
+          {['Mis reportes','Informes','Agenda','Integraciones','Portal de Estado'].map((m) => (
+            <a key={m} href="#" className="px-3 py-1 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">{m}</a>
+          ))}
+          <a href="#" className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow transition">New report</a>
+        </nav>
+      </header>
+
+      <div className="flex max-w-7xl mx-auto">
+        {/* Sidebar */}
+        <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 hidden md:block sticky top-24 h-screen overflow-y-auto">
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Analista actual</h2>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-bold text-sm shadow-lg">EM</div>
+              <div>
+                <p className="font-bold text-sm">Eduardo Meza</p>
+                <p className="text-xs text-slate-500">Analista SOC</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Turno / Periodo</h2>
+            <p className="text-sm font-semibold">Turno Noche (23:00)</p>
+            <p className="text-xs text-slate-400">2026-09-14 → 2026-09-15</p>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Entidad</h2>
+            <p className="text-sm font-semibold">Medalla Milagrosa</p>
+            <p className="text-xs text-slate-400">Empresa del reporte</p>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Plantilla de Reporte</h2>
+            <select className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" defaultValue="ejecutivo">
+              <option value="ejecutivo">Ejecutivo - Resumen alto nivel</option>
+              <option value="tecnico">Técnico - Detalles operativos</option>
+              <option value="auditoria">Auditoría - Formato estructura</option>
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Programador Automático</h2>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-600 rounded" />
+              <span>Activar generación automática</span>
+            </label>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">Próximas ejecuciones</h2>
+            <ul className="text-xs text-slate-300 space-y-2">
+              <li className="flex justify-between"><span>Noche (23:00)</span><span className="text-emerald-400">Completado</span></li>
+              <li className="flex justify-between"><span>Mañana (07:00)</span><span className="text-amber-400">Pendiente</span></li>
+              <li className="flex justify-between"><span>Tarde (16:00)</span><span className="text-amber-400">Pendiente</span></li>
+            </ul>
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main className="flex-1 p-8 space-y-8">
+          {/* Título del panel */}
+          <div>
+            <h2 className="text-3xl font-extrabold mb-1">Dashboard SOC 24x7</h2>
+            <p className="text-slate-400 text-sm">Consola de análisis de eventos de seguridad y generación de reportes.</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 overflow-x-auto">
+            {['Resumen','MITRE ATT&CK','Eventos relevantes','Tabla','Reporte','Historial','Threat Intel'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab.toLowerCase().replace(' ', '-'))}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition whitespace-nowrap shadow-sm ${
+                  activeTab === tab.toLowerCase().replace(' ', '-') ? 'bg-emerald-600 text-white shadow-emerald-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Resumen */}
+          {activeTab === 'resumen' && (
+            <>
+              <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
+                  <p className="text-xs text-slate-400 uppercase tracking-wide">Eventos Críticos</p>
+                  <p className="text-4xl font-extrabold text-red-400">{severityCounts.critical}</p>
+                  <p className="text-xs text-red-300 mt-1">Revisión inmediata</p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
+                  <p className="text-xs text-slate-400 uppercase tracking-wide">Alta Severidad</p>
+                  <p className="text-4xl font-extrabold text-orange-400">{severityCounts.high}</p>
+                  <p className="text-xs text-orange-300 mt-1">Prioridad alta</p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
+                  <p className="text-xs text-slate-400 uppercase tracking-wide">Total de eventos</p>
+                  <p className="text-4xl font-extrabold text-emerald-400">{summary?.total_events ?? events.length}</p>
+                  <p className="text-xs text-emerald-300 mt-1">Datos reales del CSV</p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
+                  <p className="text-xs text-slate-400 uppercase tracking-wide">Agentes afectados</p>
+                  <p className="text-4xl font-extrabold text-purple-400">{summary?.agents || agents.length}</p>
+                  <p className="text-xs text-purple-300 mt-1">Hosts detectados</p>
+                </div>
+              </section>
+
+              <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                <div className="lg:col-span-1 bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+                  <h3 className="text-lg font-extrabold mb-4">Distribución de severidades</h3>
+                  <div className="relative w-48 h-48 mx-auto">
+                    <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f59e0b" strokeWidth="4" strokeDasharray={(severityCounts.high) + ' ' + (events.length - severityCounts.high)} />
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#ef4444" strokeWidth="4" strokeDasharray={(severityCounts.critical) + ' ' + (events.length)} />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-extrabold text-white">{events.length}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 justify-center mt-4 text-xs">
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Critical</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" />High</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500" />Media</span>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+                  <h3 className="text-lg font-extrabold mb-4">Top agentes afectados</h3>
+                  <div className="space-y-3">
+                    {agents.slice(0, 5).map((agent, i) => {
+                      const count = events.filter((e) => e.Host === agent).length;
+                      return (
+                        <div key={agent} className="flex items-center gap-3">
+                          <span className="text-xs text-slate-500 w-4">#{i + 1}</span>
+                          <span className="text-sm font-semibold text-slate-200 w-40 truncate">{agent}</span>
+                          <div className="flex-1 h-4 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" style={{ width: `${(count / events.length) * 100}%` }} />
+                          </div>
+                          <span className="text-xs font-bold text-slate-300">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {/* MITRE ATT&CK */}
+          {activeTab === 'mitre-attack' && (
+            <section className="space-y-6">
+              <div className="bg-gradient-to-br from-purple-900/30 to-slate-900 rounded-3xl p-8 border border-purple-900/40 shadow-2xl">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" />
+                  <h3 className="text-2xl font-extrabold text-purple-300">Clasificación MITRE ATT&CK</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-lg">
+                    <p className="text-xs text-slate-400 mb-1">Reconocimiento</p>
+                    <p className="text-3xl font-extrabold text-white">44 eventos</p>
+                    <p className="text-xs text-slate-500 mt-1">TA0043 - Escaneo agresivo de directorios</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-lg">
+                    <p className="text-xs text-slate-400 mb-1">Ejecución</p>
+                    <p className="text-3xl font-extrabold text-red-400">9688 eventos</p>
+                    <p className="text-xs text-red-300 mt-1">TA0002 - Comandos sospechosos en hosts</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-lg">
+                    <p className="text-xs text-slate-400 mb-1">Persistencia</p>
+                    <p className="text-3xl font-extrabold text-purple-400">181 eventos</p>
+                    <p className="text-xs text-purple-300 mt-1">TA0003 - Persistencia en registros</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-lg">
+                    <h4 className="font-bold text-amber-400 mb-2">Reconocimiento</h4>
+                    <p className="text-xs text-slate-400 mb-2">TA0043 - T1046 Network Service Discovery</p>
+                    <p className="text-sm text-slate-200">Intento de reconocimiento o recopilación de información sobre los sistemas de la red.</p>
+                    <p className="text-xs text-amber-300 mt-1">Ejemplo: Escaneo agresivo de directorios (múltiples 404/403) detectado.</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-lg">
+                    <h4 className="font-bold text-red-400 mb-2">Ejecución</h4>
+                    <p className="text-xs text-slate-400 mb-2">TA0002 - T1059 Command and Scripting Interpreter</p>
+                    <p className="text-sm text-slate-200">Ejecución de código, comandos o scripts sospechosos en los hosts.</p>
+                    <p className="text-xs text-red-300 mt-1">Ejemplo: PowerShell con comando ofuscado, mimikatz, certutil.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Eventos relevantes */}
+          {activeTab === 'eventos-relevantes' && (
+            <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+              <h3 className="text-xl font-extrabold mb-4">Eventos relevantes</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left text-slate-300">
+                  <thead className="text-xs uppercase bg-slate-700 text-slate-400">
+                    <tr>
+                      <th>Timestamp</th><th>Host</th><th>Regla</th><th>Severidad</th><th>Descripción</th><th>CVE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map((e: any, i: number) => (
+                      <tr key={i} className="border-b border-slate-800 hover:bg-slate-800">
+                        <td className="py-2">{e.Timestamp}</td>
+                        <td>{e.Host}</td>
+                        <td className="text-xs text-purple-300">{e.Regla}</td>
+                        <td><span className={`px-2 py-0.5 text-xs font-bold rounded ${e.Severidad?.toLowerCase() === 'crítico' || e.Severidad?.toLowerCase() === 'critical' ? 'bg-red-900 text-red-300' : e.Severidad?.toLowerCase() === 'alta' || e.Severidad?.toLowerCase() === 'high' ? 'bg-orange-900 text-orange-300' : 'bg-yellow-900 text-yellow-300'}`}>{e.Severidad}</span></td>
+                        <td className="max-w-xs truncate">{e.Descripcion}</td>
+                        <td className="text-xs text-amber-300">{e.CVE || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Tabla */}
+          {activeTab === 'tabla' && (
+            <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+              <h3 className="text-xl font-extrabold mb-4">Tabla completa</h3>
+              <div className="overflow-x-auto text-xs text-slate-300">
+                <table className="w-full border-collapse">
+                  <thead className="bg-slate-700 text-slate-400 uppercase">
+                    <tr>
+                      <th className="p-2 border border-slate-600">Timestamp</th>
+                      <th className="p-2 border border-slate-600">Agent</th>
+                      <th className="p-2 border border-slate-600">Descripción</th>
+                      <th className="p-2 border border-slate-600">Nivel</th>
+                      <th className="p-2 border border-slate-600">IP</th>
+                      <th className="p-2 border border-slate-600">Indicador</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map((e: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-800">
+                        <td className="p-2 border border-slate-700">{e.Timestamp}</td>
+                        <td className="p-2 border border-slate-700">{e.Host}</td>
+                        <td className="p-2 border border-slate-700 max-w-xs truncate">{e.Descripcion}</td>
+                        <td className="p-2 border border-slate-700">{e.Regla}</td>
+                        <td className="p-2 border border-slate-700">{e.Origen}</td>
+                        <td className="p-2 border border-slate-700">{e.CVE || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Reporte */}
+          {activeTab === 'reporte' && (
+            <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
+              <h3 className="text-xl font-extrabold">Generar Reporte</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase">Formato del reporte</label>
+                  <select value={reportFormat} onChange={(e) => setReportFormat(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm mt-1">
+                    <option value="ejecutivo">Ejecutivo - Resumen alto nivel</option>
+                    <option value="tecnico">Técnico - Detalles operativos</option>
+                    <option value="auditoria">Auditoría - Formato estructura</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase">Formato de salida</label>
+                  <select value={reportOutput} onChange={(e) => setReportOutput(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm mt-1">
+                    <option value="pdf">PDF</option>
+                    <option value="json">JSON</option>
+                    <option value="txt">TXT</option>
+                    <option value="stx">STX</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase">Acción</label>
+                  <div className="flex gap-2 mt-1">
+                    <button onClick={handleGenerateReport} className="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg py-2 transition shadow">Generar</button>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-slate-950 rounded-xl p-6 border border-slate-800 shadow-inner">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                  <h4 className="font-extrabold text-lg">Reporte generado</h4>
+                  <span className="text-xs bg-amber-900 text-amber-300 px-2 py-0.5 rounded">{reportFormat.toUpperCase()} / {reportOutput.toUpperCase()}</span>
+                </div>
+                <div className="text-sm text-slate-300 space-y-2 leading-relaxed">
+                  <p><strong>Analista:</strong> Eduardo Meza</p>
+                  <p><strong>Fecha:</strong> 16/09/2026</p>
+                  <p><strong>Periodo:</strong> Turno Noche (23:00)</p>
+                  <p><strong>Entidad:</strong> Medalla Milagrosa</p>
+                  <p><strong>Resumen Ejecutivo:</strong> Eventos críticos: <span className="text-red-400 font-bold">{severityCounts.critical}</span> · Alta severidad: <span className="text-orange-400 font-bold">{severityCounts.high}</span> · Total: <span className="text-emerald-400 font-bold">{summary?.total_events ?? events.length}</span> · Agentes: <span className="text-purple-400 font-bold">{summary?.agents || agents.length}</span></p>
+                  <p><strong>Procesos/comandos sospechosos:</strong> {events.filter((e) => e.Proceso).map((e) => e.Proceso).filter(Boolean).join(', ') || 'Procesos detectados en análisis.'}</p>
+                  <p><strong>IPs externas sospechosas:</strong> {Array.from(new Set(events.map((e) => e.Origen).filter((o) => o && !o.includes('10.') && !o.includes('192.168.') && !o.includes('127.') && !o.includes('0.0.0.0')))).slice(0, 7).join(', ') || '-'}</p>
+                  <p><strong>Hashes de archivos:</strong> 07FE1BE55D1049C7B48E270C466502D4, 1222A44A5FDB4EFDE4DFCB41093648627950E7EC02D8667F1C26CCAE31D922E2</p>
+                  <p><strong>CVEs identificados:</strong> {Array.from(new Set(events.map((e) => e.CVE).filter(Boolean))).join(', ') || 'Ninguno'}</p>
+                  <p><strong>Prioridad:</strong> Revisión inmediata de los eventos críticos. Investigar procesos/comandos sospechosos y validar hosts comprometidos.</p>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={() => alert('Descargando TXT...')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition shadow hover:scale-105">TXT</button>
+                  <button onClick={() => alert('Descargando PDF...')} className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-lg transition shadow hover:scale-105">PDF</button>
+                  <button onClick={() => alert('Descargando JSON...')} className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold rounded-lg transition shadow hover:scale-105">JSON</button>
+                  <button onClick={() => alert('Descargando STX...')} className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white text-sm font-bold rounded-lg transition shadow hover:scale-105">STX</button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Historial */}
+          {activeTab === 'historial' && (
+            <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+              <h3 className="text-xl font-extrabold mb-4">Historial / Timeline</h3>
+              <div className="space-y-3">
+                {events.slice(0, 8).map((e: any, i: number) => (
+                  <div key={i} className="flex items-center gap-4 p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-emerald-500/30 transition">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <div className="text-xs text-slate-400 w-32 shrink-0">{e.Timestamp}</div>
+                    <div className="text-sm font-semibold text-slate-200 truncate">{e.Descripcion}</div>
+                    <div className="text-xs font-bold ml-auto">{e.Host}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Threat Intel */}
+          {activeTab === 'threat-intel' && (
+            <section className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-6 border border-slate-800 shadow-xl">
+              <h3 className="text-xl font-extrabold mb-4">Threat Intel</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-lg">
+                  <h4 className="font-bold text-slate-300 mb-2">IPs externas sospechosas</h4>
+                  <ul className="text-xs text-slate-400 space-y-1">
+                    {Array.from(new Set(events.map((e) => e.Origen).filter((o) => o && !o.includes('10.') && !o.includes('192.168.') && !o.includes('127.') && !o.includes('0.0.0.0')))).slice(0, 5).map((ip) => <li key={ip} className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" />{ip}</li>)}
+                  </ul>
+                </div>
+                <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-lg">
+                  <h4 className="font-bold text-slate-300 mb-2">CVEs detectados</h4>
+                  <ul className="text-xs text-slate-400 space-y-1">
+                    {Array.from(new Set(events.map((e) => e.CVE).filter(Boolean))).slice(0, 5).map((cve) => <li key={cve} className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" />{cve}</li>)}
+                  </ul>
+                </div>
+                <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-lg md:col-span-2">
+                  <h4 className="font-bold text-slate-300 mb-2">Procesos sospechosos</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from(new Set(events.map((e) => e.Proceso).filter(Boolean))).map((proc) => (
+                      <span key={proc} className="px-2 py-1 text-xs bg-red-900/30 text-red-300 rounded border border-red-900/40">{proc}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}

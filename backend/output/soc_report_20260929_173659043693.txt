@@ -1,0 +1,50 @@
+🛡️ *REPORTE SOC 24x7*
+
+Compartimos el resumen de los eventos de seguridad analizados.
+
+🏢 *Cliente:* Cliente API
+👨‍💻 *Analista:* Eduardo Meza
+📅 *Emisión:* 29/09/2026 17:36 UTC
+🕒 *Periodo de los registros:* 2026-09-14T01:23:45 a 2026-09-29T15:51:54 (horario de origen)
+
+📊 *Resumen ejecutivo*
+• Total de eventos: *30,046*
+• 🔴 Críticos: *12,174*
+• 🟠 Altos: *17,858*
+• 🟡 Medios: *14* | 🟢 Bajos: *0*
+• Agentes: *175* | Hosts: *175*
+• Índice de riesgo: *76.2/100*
+
+📋 *Hallazgos principales*
+• 12174 eventos críticos detectados - Revisión inmediata requerida
+• 17858 eventos de alta severidad - Prioridad alta
+• Procesos/comandos sospechosos: Mimikatz, PowerShell, certutil, cmd.exe, lsass, mimikatz, mshta, powershell, psexec, rundll32
+• CVEs identificados: CVE-2021-44228, CVE-2023-34362, CVE-2023-44487
+
+💻 *Agentes con mayor actividad*
+• MPHGSL_SALA_8: *10000 eventos*
+• CN16: *1676 eventos*
+• SOC02: *1540 eventos*
+• SOC01: *1234 eventos*
+• ACGR61: *952 eventos*
+
+🌐 *IPs observadas — requieren contexto*
+• 10.10.10.10
+• 10.10.10.20
+• 10.10.10.40
+• 10.10.10.99
+• 10.10.40.10
+
+📌 *Acciones recomendadas*
+• Inmediata: validar los 12174 eventos críticos y evaluar contención si se confirma actividad no autorizada.
+• Prioritaria: revisar legitimidad y alcance de los 17858 eventos de alta severidad.
+• Corto plazo: verificar versiones afectadas por los CVEs registrados y priorizar las correcciones aplicables.
+• Validar los procesos observados con los responsables de los equipos y revisar su origen.
+
+*Estado:* Pendiente de validación.
+Los eventos detectados no equivalen a incidentes confirmados.
+¿Podrían confirmar si la actividad corresponde a operaciones autorizadas?
+
+Atendido por Eduardo Meza · Equipo SOC 24x7
+
+_Resumen: consulte el PDF/JSON para ampliar el detalle._

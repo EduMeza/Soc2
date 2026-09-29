@@ -1,0 +1,70 @@
+{"ts": "2026-09-18T23:27:03", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-18T23:27:03", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-18T23:27:05", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-18T23:27:17", "event": "logout", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-18T23:27:18", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-19T01:02:37", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-19T01:02:38", "event": "login_ok", "doc": "12345678", "detail": ""}
+{"ts": "2026-09-19T08:57:18", "event": "access_denied", "doc": "11111111", "detail": "view:Administración|role:SOC_VIEWER|required:['ADMIN']"}
+{"ts": "2026-09-21T15:35:30", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:35:33", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:35:33", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:35:34", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:35:34", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:43:28", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:43:36", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:43:37", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:43:39", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:45:58", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:45:58", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:45:59", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:45:59", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T15:50:53", "event": "logout", "doc": "admin", "detail": ""}
+{"ts": "2026-09-21T21:44:05", "event": "login_fail", "doc": "5205342", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-21T21:44:18", "event": "login_fail", "doc": "5205342", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-21T22:19:45", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T22:21:51", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T22:24:51", "event": "login_fail", "doc": "Eduardo Meza", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-21T22:25:54", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T22:26:00", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T22:26:06", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T22:26:24", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T22:26:26", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T22:26:27", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T22:26:38", "event": "login_fail", "doc": "", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-21T23:26:50", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T23:28:32", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T23:28:48", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:28:57", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:28:59", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:01", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:12", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:19", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER']"}
+{"ts": "2026-09-21T23:29:22", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:24", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:41", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:43", "event": "logout", "doc": "", "detail": ""}
+{"ts": "2026-09-21T23:29:45", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-21T23:29:50", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:29:52", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER']"}
+{"ts": "2026-09-21T23:29:54", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER']"}
+{"ts": "2026-09-21T23:29:56", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER']"}
+{"ts": "2026-09-21T23:31:04", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER']"}
+{"ts": "2026-09-21T23:31:17", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:31:18", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:31:19", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:31:20", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:31:20", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-21T23:31:20", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-22T00:00:36", "event": "login_fail", "doc": "5205342", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-22T00:01:21", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-22T00:01:25", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-22T00:01:29", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-22T09:15:53", "event": "login_fail", "doc": "5205342", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-22T09:29:24", "event": "pwd_reset_admin", "doc": "99999999", "detail": "reset por administrador"}
+{"ts": "2026-09-22T09:29:51", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-22T09:30:09", "event": "login_fail", "doc": "5205342", "detail": "credenciales incorrectas"}
+{"ts": "2026-09-22T09:30:28", "event": "login_ok", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-22T09:30:58", "event": "pwd_change", "doc": "99999999", "detail": ""}
+{"ts": "2026-09-22T09:31:22", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}
+{"ts": "2026-09-22T09:31:23", "event": "access_denied", "doc": "", "detail": "view:unknown|role:|required:['ADMIN', 'SOC_ANALYST', 'SOC_VIEWER', 'AUDITOR']"}

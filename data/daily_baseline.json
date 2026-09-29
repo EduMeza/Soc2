@@ -1,0 +1,88 @@
+{
+  "days": [
+    {
+      "date": "2026-09-13",
+      "critical": 2,
+      "high": 5,
+      "total": 60,
+      "agents": 1,
+      "suspicious": 0,
+      "scan": 2,
+      "service": 0,
+      "auth": 5,
+      "cves": 0
+    },
+    {
+      "date": "2026-09-14",
+      "critical": 3,
+      "high": 8,
+      "total": 80,
+      "agents": 2,
+      "suspicious": 1,
+      "scan": 3,
+      "service": 0,
+      "auth": 10,
+      "cves": 0
+    },
+    {
+      "date": "2026-09-15",
+      "critical": 9979,
+      "high": 21,
+      "total": 10000,
+      "agents": 49,
+      "suspicious": 0,
+      "scan": 0,
+      "service": 0,
+      "auth": 0,
+      "cves": 0
+    },
+    {
+      "date": "2026-09-16",
+      "critical": 109,
+      "high": 9891,
+      "total": 10000,
+      "agents": 33,
+      "suspicious": 356,
+      "scan": 44,
+      "service": 0,
+      "auth": 0,
+      "cves": 659
+    },
+    {
+      "date": "2026-09-17",
+      "critical": 28,
+      "high": 908,
+      "total": 936,
+      "agents": 8,
+      "suspicious": 45,
+      "scan": 1,
+      "service": 0,
+      "auth": 0,
+      "cves": 387
+    },
+    {
+      "date": "2026-09-18",
+      "critical": 594,
+      "high": 549,
+      "total": 1143,
+      "agents": 10,
+      "suspicious": 632,
+      "scan": 10,
+      "service": 0,
+      "auth": 0,
+      "cves": 364
+    },
+    {
+      "date": "2026-09-21",
+      "critical": 12,
+      "high": 20,
+      "total": 46,
+      "agents": 21,
+      "suspicious": 9,
+      "scan": 8,
+      "service": 2,
+      "auth": 2,
+      "cves": 3
+    }
+  ]
+}

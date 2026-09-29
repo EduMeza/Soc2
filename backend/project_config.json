@@ -1,0 +1,7 @@
+{
+  "project": "SOC Command Center",
+  "version": "1.0.0",
+  "stack": "FastAPI + React (Vite/TS/Tailwind) + SQLite",
+  "data_source": "CSV only",
+  "notes": "No Wazuh mocks in final UI. No invented events, IPs, geos, MITRE, or correlations."
+}

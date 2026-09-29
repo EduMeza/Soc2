@@ -1,0 +1,393 @@
+{
+ "cves": {
+  "CVE-2022-31747": {
+   "title": "CVE-2022-31747",
+   "description": "Mozilla developers Andrew McCreight, Nicolas B. Pierron, and the Mozilla Fuzzing Team reported memory safety bugs present in Firefox 100 and Firefox ESR 91.9. Some of these bugs showed evidence of memory corruption and we presume that with enough effort some of these could have been exploited to run arbitrary code. This vulnerability affects Thunderbird < 91.10, Firefox < 101, and Firefox ESR < 91.10.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2022-12-22",
+   "references": 8,
+   "source": "NVD"
+  },
+  "CVE-2024-11704": {
+   "title": "CVE-2024-11704",
+   "description": "A double-free issue could have occurred in `sec_pkcs7_decoder_start_decrypt()` when handling an error path. Under specific conditions, the same symmetric key could have been freed twice, potentially leading to memory corruption. This vulnerability affects Firefox < 133, Thunderbird < 133, Firefox ESR < 128.7, and Thunderbird < 128.7.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2024-11-26",
+   "references": 7,
+   "source": "NVD"
+  },
+  "CVE-2025-14860": {
+   "title": "CVE-2025-14860",
+   "description": "Use-after-free in the Disability Access APIs component. This vulnerability was fixed in Firefox 146.0.1.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2025-12-18",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2021-44228": {
+   "title": "CVE-2021-44228",
+   "description": "Apache Log4j2 2.0-beta9 through 2.15.0 (excluding security releases 2.12.2, 2.12.3, and 2.3.1) JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled. From log4j 2.15.0, this behavior has been disabled by default. From version 2.16.0 (along with 2.12.2, 2.12.3, and 2.3.1), this functionality has been completely removed. Note that this vulnerability is specific to log4j-core and does not affect log4net, log4cxx, or other Apache Logging Services projects.",
+   "score": 10.0,
+   "severity": "CRITICAL",
+   "published": "2021-12-10",
+   "references": 103,
+   "source": "NVD"
+  },
+  "CVE-2023-34362": {
+   "title": "CVE-2023-34362",
+   "description": "In Progress MOVEit Transfer before 2021.0.6 (13.0.6), 2021.1.4 (13.1.4), 2022.0.4 (14.0.4), 2022.1.5 (14.1.5), and 2023.0.1 (15.0.1), a SQL injection vulnerability has been found in the MOVEit Transfer web application that could allow an unauthenticated attacker to gain access to MOVEit Transfer's database. Depending on the database engine being used (MySQL, Microsoft SQL Server, or Azure SQL), an attacker may be able to infer information about the structure and contents of the database, and execute SQL statements that alter or delete database elements. NOTE: this is exploited in the wild in May and June 2023; exploitation of unpatched systems can occur via HTTP or HTTPS. All versions (e.g., 2020.0 and 2019x) before the five explicitly mentioned versions are affected, including older unsupported versions.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2023-06-02",
+   "references": 7,
+   "source": "NVD"
+  },
+  "CVE-2023-44487": {
+   "title": "CVE-2023-44487",
+   "description": "The HTTP/2 protocol allows a denial of service (server resource consumption) because request cancellation can reset many streams quickly, as exploited in the wild in August through October 2023.",
+   "score": 7.5,
+   "severity": "HIGH",
+   "published": "2023-10-10",
+   "references": 292,
+   "source": "NVD"
+  },
+  "CVE-2026-11153": {
+   "title": "CVE-2026-11153",
+   "description": "Side-channel information leakage in Forms in Google Chrome prior to 149.0.7827.53 allowed a remote attacker to leak cross-origin data via a crafted HTML page. (Chromium security severity: Medium)",
+   "score": 9.1,
+   "severity": "CRITICAL",
+   "published": "2026-06-04",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-11152": {
+   "title": "CVE-2026-11152",
+   "description": "Object lifecycle issue in Dawn in Google Chrome prior to 149.0.7827.53 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medium)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-06-04",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-11009": {
+   "title": "CVE-2026-11009",
+   "description": "Use after free in USB in Google Chrome on Windows prior to 149.0.7827.53 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medium)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-06-04",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-17666": {
+   "title": "CVE-2026-17666",
+   "description": "Cryptographic Flaw in Enterprise in Google Chrome prior to 151.0.7922.72 allowed an attacker in a privileged network position to bypass discretionary access control via malicious network traffic. (Chromium security severity: High)",
+   "score": 9.1,
+   "severity": "CRITICAL",
+   "published": "2026-07-30",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-10983": {
+   "title": "CVE-2026-10983",
+   "description": "Insufficient validation of untrusted input in Dawn in Google Chrome prior to 149.0.7827.53 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-06-04",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-13909": {
+   "title": "CVE-2026-13909",
+   "description": "Insufficient policy enforcement in DevTools in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medium)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-06-30",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-17682": {
+   "title": "CVE-2026-17682",
+   "description": "Integer overflow in ANGLE in Google Chrome prior to 151.0.7922.72 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-07-30",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-17687": {
+   "title": "CVE-2026-17687",
+   "description": "Type Confusion in ANGLE in Google Chrome prior to 151.0.7922.72 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-07-30",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-11063": {
+   "title": "CVE-2026-11063",
+   "description": "Insufficient validation of untrusted input in WebNN in Google Chrome on Windows prior to 149.0.7827.53 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medium)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-06-04",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-17656": {
+   "title": "CVE-2026-17656",
+   "description": "Use after free in Ozone in Google Chrome prior to 151.0.7922.72 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Critical)",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-07-30",
+   "references": 2,
+   "source": "NVD"
+  },
+  "CVE-2026-74979": {
+   "title": "CVE-2026-74979",
+   "description": "Mitigation bypass in the Add-ons Manager component. This vulnerability was fixed in Firefox 154, Firefox ESR 153.1, Thunderbird 154, and Thunderbird 153.1.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-08-18",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-6760": {
+   "title": "CVE-2026-6760",
+   "description": "Mitigation bypass in the Networking: Cookies component. This vulnerability was fixed in Firefox 150 and Thunderbird 150.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-04-21",
+   "references": 3,
+   "source": "NVD"
+  },
+  "CVE-2025-8038": {
+   "title": "CVE-2025-8038",
+   "description": "Thunderbird ignored paths when checking the validity of navigations in a frame. This vulnerability was fixed in Firefox 141, Firefox ESR 140.1, Thunderbird 141, and Thunderbird 140.1.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2025-07-22",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-4717": {
+   "title": "CVE-2026-4717",
+   "description": "Privilege escalation in the Netmonitor component. This vulnerability was fixed in Firefox 149, Firefox ESR 140.9, Thunderbird 149, and Thunderbird 140.9.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-03-24",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-4702": {
+   "title": "CVE-2026-4702",
+   "description": "JIT miscompilation in the JavaScript Engine component. This vulnerability was fixed in Firefox 149, Firefox ESR 140.9, Thunderbird 149, and Thunderbird 140.9.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-03-24",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-2800": {
+   "title": "CVE-2026-2800",
+   "description": "Spoofing issue in the WebAuthn component in Firefox for Android. This vulnerability was fixed in Firefox 148 and Thunderbird 148.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-02-24",
+   "references": 3,
+   "source": "NVD"
+  },
+  "CVE-2026-4723": {
+   "title": "CVE-2026-4723",
+   "description": "Use-after-free in the JavaScript Engine component. This vulnerability was fixed in Firefox 149 and Thunderbird 149.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-03-24",
+   "references": 3,
+   "source": "NVD"
+  },
+  "CVE-2025-11709": {
+   "title": "CVE-2025-11709",
+   "description": "A compromised web process was able to trigger out of bounds reads and writes in a more privileged process using manipulated WebGL textures. This vulnerability was fixed in Firefox 144, Firefox ESR 115.29, Firefox ESR 140.4, Thunderbird 144, and Thunderbird 140.4.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2025-10-14",
+   "references": 8,
+   "source": "NVD"
+  },
+  "CVE-2026-2806": {
+   "title": "CVE-2026-2806",
+   "description": "Uninitialized memory in the Graphics: Text component. This vulnerability was fixed in Firefox 148 and Thunderbird 148.",
+   "score": 9.1,
+   "severity": "CRITICAL",
+   "published": "2026-02-24",
+   "references": 3,
+   "source": "NVD"
+  },
+  "CVE-2026-84133": {
+   "title": "CVE-2026-84133",
+   "description": "Site isolation issue in the DOM: Push Subscriptions component. This vulnerability was fixed in Firefox 155, Firefox ESR 153.2, Thunderbird 155, and Thunderbird 153.2.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-09-01",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-50447": {
+   "title": "CVE-2026-50447",
+   "description": "Heap-based buffer overflow in Windows Message Queuing allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-50380": {
+   "title": "CVE-2026-50380",
+   "description": "Heap-based buffer overflow in Windows GDI+ allows an unauthorized attacker to execute code over a network.",
+   "score": 9.6,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-49172": {
+   "title": "CVE-2026-49172",
+   "description": "Heap-based buffer overflow in Windows FTP Service allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-45602": {
+   "title": "CVE-2026-45602",
+   "description": "No cwe for this issue in Windows DHCP Server allows an unauthorized attacker to perform tampering over a network.",
+   "score": 9.1,
+   "severity": "CRITICAL",
+   "published": "2026-06-09",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-56190": {
+   "title": "CVE-2026-56190",
+   "description": "Use of uninitialized resource in Windows RDP allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-47291": {
+   "title": "CVE-2026-47291",
+   "description": "Integer overflow or wraparound in Windows HTTP.sys allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-06-09",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-42990": {
+   "title": "CVE-2026-42990",
+   "description": "Heap-based buffer overflow in SQL Server ODBC driver allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-49798": {
+   "title": "CVE-2026-49798",
+   "description": "Use after free in Windows Kernel allows an unauthorized attacker to elevate privileges locally.",
+   "score": 9.3,
+   "severity": "CRITICAL",
+   "published": "2026-07-14",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2025-60724": {
+   "title": "CVE-2025-60724",
+   "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2025-11-11",
+   "references": 1,
+   "source": "NVD"
+  },
+  "CVE-2026-33824": {
+   "title": "CVE-2026-33824",
+   "description": "Double free in Windows IKE Extension allows an unauthorized attacker to execute code over a network.",
+   "score": 9.8,
+   "severity": "CRITICAL",
+   "published": "2026-04-14",
+   "references": 3,
+   "source": "NVD"
+  },
+  "CVE-2026-15534": {
+   "title": "CVE-2026-15534",
+   "description": "Perl versions through 5.45.1 have out-of-bounds heap reads and writes during regular expression matching via an undersized superlinear cache in S_regmatch.\n\nThe regex engine's superlinear cache holds one bit per subject position for each participating WHILEM node, so the bit count is the subject length plus one times the number of nodes. Nothing checks that product for positive overflow of the signed 32-bit count: a 286331153 byte subject matched against a pattern with 15 participating nodes stores the count as 14, leaving a two byte cache. The cache is then indexed from the real match position and node number, so reads go past the end of the allocation, and on failure CACHEsayNO sets a bit past it.\n\nA caller that matches an attacker controlled subject of this size against a pattern of this shape can crash the process or corrupt heap memory.",
+   "score": 5.7,
+   "severity": "MEDIUM",
+   "published": "2026-08-09",
+   "references": 4,
+   "source": "NVD"
+  },
+  "CVE-2026-19487": {
+   "title": "CVE-2026-19487",
+   "description": "Perl versions from 5.9.4 before 5.41.9 produce incorrect regular expression match results when a stale failure flag ends the Aho-Corasick prescan early in S_find_byclass.\n\nThe prescan walks the subject for positions where the full pattern could match, and the engine tries it from the leftmost one recorded. A failing transition sets the failed flag, and a later successful transition does not clear it, so the prescan reads the stale flag as a failure and stops before it can record a candidate that starts earlier. It takes a subject where one candidate is recorded and a later character then forces a fallback through a fail link that succeeds.\n\nExample:\n\n  \"ABCDE\" =~ m/ABCF|BCDE|C/;    # matches C at offset 2, not BCDE\n  \"ABCDE\" =~ m/ABCF|BCDE|C(G)/; # no match, BCDE missed\n\nAn alternation like this can miss input it should match, or match it on the wrong branch, so an access or filtering decision made from the result can be wrong.",
+   "score": 5.3,
+   "severity": "MEDIUM",
+   "published": "2026-08-13",
+   "references": 4,
+   "source": "NVD"
+  },
+  "CVE-2026-39113": {
+   "title": "CVE-2026-39113",
+   "description": "Buffer Overflow vulnerability in SQLite affected version source snapshots/builds containing Fossil check-in 8bdc0d485e3ad0c7a1e818da66f106951d496b05cbe61d12c2c448f2f24b6d5d (Git mirror 169f68ed88b34cb68f720191c64c058f2ccec508, 2026-03-11) and later snapshots/builds allows an attacker to cause a denial of service via the ext/misc/sqlar.c, sqlarUncompressFunc(), sqlar_uncompress(), sqlite3_value_int64(), sqlite3_malloc(int), uncompress() components",
+   "score": 4.0,
+   "severity": "MEDIUM",
+   "published": "2026-08-25",
+   "references": 5,
+   "source": "NVD"
+  },
+  "CVE-2026-56208": {
+   "title": "CVE-2026-56208",
+   "description": "A heap buffer overflow vulnerability was found in libaom, the reference AV1 codec implementation. A flaw in the AV1 encoder's Look-Ahead Processing (LAP) mode causes the first-pass stats ring buffer wrap-around guard to be bypassed when g_lag_in_frames is set to 1 or higher. This results in a 232-byte out-of-bounds write on every encoded frame after the second, corrupting adjacent heap objects. An attacker who can influence encoder configuration in a transcoding service or WebRTC session could exploit this to cause a denial of service (process crash) or potentially achieve code execution.",
+   "score": 7.6,
+   "severity": "HIGH",
+   "published": "2026-06-19",
+   "references": 72,
+   "source": "NVD"
+  },
+  "CVE-2026-56209": {
+   "title": "CVE-2026-56209",
+   "description": "An arbitrary address write vulnerability was found in libaom, the reference AV1 codec implementation. A missing bounds check in the SVC (Scalable Video Coding) layer ID control function allows an attacker to inject an arbitrary pointer into the cyclic refresh map field via crafted image pixel values. The encoder then writes approximately 1,200 bytes at the attacker-controlled address. This is fully deterministic and does not require a separate information leak. An attacker who can supply frames to a network-facing libaom encoder with SVC enabled could exploit this for denial of service or potential code execution.",
+   "score": 7.1,
+   "severity": "HIGH",
+   "published": "2026-06-19",
+   "references": 52,
+   "source": "NVD"
+  },
+  "CVE-2026-56211": {
+   "title": "CVE-2026-56211",
+   "description": "A remote code execution vulnerability was found in libaom, the reference AV1 codec implementation. Insufficient bounds validation in the AV1 encoder's SVC (Scalable Video Coding) layer ID control allows an attacker to supply crafted video frame pixels that overlap with internal encoder layer context structures. In fork-based video processing services, an attacker can use this to hijack the cyclic refresh map pointer, brute-force the process base address via a crash oracle, and redirect control flow to achieve arbitrary command execution. Exploitation requires the target service to use libaom with SVC encoding enabled and accept attacker-supplied video frames.",
+   "score": 7.1,
+   "severity": "HIGH",
+   "published": "2026-06-19",
+   "references": 52,
+   "source": "NVD"
+  },
+  "CVE-2026-56210": {
+   "title": "CVE-2026-56210",
+   "description": "A heap-buffer-overflow read vulnerability was found in libaom, the reference AV1 codec implementation. A missing bounds check in the SVC (Scalable Video Coding) layer ID control function allows setting a spatial_layer_id exceeding the configured number of layers. This causes an out-of-bounds heap read of approximately 40,728 bytes when computing a layer context array index. An attacker who can influence SVC encoder parameters in a network-facing service could exploit this for information disclosure (heap content leak) or denial of service (segmentation fault from hitting unmapped memory).",
+   "score": 7.1,
+   "severity": "HIGH",
+   "published": "2026-06-19",
+   "references": 52,
+   "source": "NVD"
+  }
+ },
+ "ips": {},
+ "updated": "2026-09-24T09:44:41"
+}

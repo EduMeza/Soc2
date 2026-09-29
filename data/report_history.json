@@ -1,0 +1,217 @@
+{
+  "reports": [
+    {
+      "id": "9640170b52",
+      "created_at": "2026-09-21T15:39:34",
+      "signature": "ae564d09f695754f09e5e6f704f31e0d83529a61d00620d5bc26be164a28e3d8",
+      "analyst": "Eduardo Meza",
+      "period": "Mañana (07:00)",
+      "entity": "",
+      "template": "ejecutivo",
+      "critical": 1,
+      "high": 0,
+      "total": 1453,
+      "agents": 15,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Mañana (07:00)\n🏢 *Entidad:* No especificada\n📄 *Plantilla:* Ejecutivo\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *1*\n• 🟠 Eventos Alta Severidad: *0*\n• 🟢 Total de eventos: *1.453*\n• 💻 Agentes afectados: *15*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *0/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *99%*\n  - Eventos Alta Severidad: 🟢▼ *100%*\n  - Total de Eventos: 🔴▲ *105%*\n  - Agentes Afectados: 🔴▲ *15%*\n\n*📋 Hallazgos Ejecutivos*\n• Se detectaron 1 eventos críticos que requieren atención inmediata.\n\n*💻 Agentes afectados (15):*\nACGG251, ACGA210, AB02, ACGA52, ACGG314, ACGA85, ACGA349,\nACGA342, ACGA21, ACGA06, SVT, SOC02, ACGT43, AB06, ACGR13\n\n*🚨 Prioridad*\n• Revisión inmediata de los *1* eventos críticos.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "f50cca9df23beb97",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "c6f1b3ddd6",
+      "created_at": "2026-09-21T16:39:18",
+      "signature": "604f7f42bded72d4e57c767d241fa9ba78de23bec32c9949778bff1aaaef5cab",
+      "analyst": "Eduardo Meza",
+      "period": "Mañana (07:00)",
+      "entity": "Medalla Milagrosa",
+      "template": "ejecutivo",
+      "critical": 12,
+      "high": 20,
+      "total": 46,
+      "agents": 21,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Mañana (07:00)\n🏢 *Entidad:* Medalla Milagrosa\n📄 *Plantilla:* Ejecutivo\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *12*\n• 🟠 Eventos Alta Severidad: *20*\n• 🟢 Total de eventos: *46*\n• 💻 Agentes afectados: *21*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *15/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *94%*\n  - Eventos Alta Severidad: 🟢▼ *95%*\n  - Total de Eventos: 🟢▼ *93%*\n  - Agentes Afectados: 🔴▲ *61%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *SRV-DC01* presenta el mayor score de riesgo (87/100), concentrando la mayor actividad sospechosa del periodo.\n• Se detectó ejecución de *Mimikatz*, herramienta de extracción de credenciales.\n• Se detectó uso de *PowerShell ofuscado* (-enc), técnica común en ataques avanzados.\n\n*💻 Agentes afectados (21):*\nSRV-DC01, SRV-WEB02, SRV-DB01, WS-PC-001, WS-PC-002,\nWS-PC-003, SRV-FILE01, SRV-APP01, WS-PC-004, SRV-VPN01,\nWS-PC-005, SRV-BACKUP01, WS-PC-006, SRV-EXCH01, WS-PC-007,\nSRV-FILE02, SRV-MAIL01, WS-PC-008, SRV-DC02, SRV-ESC01,\nSRV-ESC02\n\n*🚨 Prioridad*\n• Revisión inmediata de los *12* eventos críticos.\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n• Investigar el origen de los escaneos (ver IPs relevantes) a nivel de firewall/proxy.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n• Revisar los servicios de Windows recién creados.\n• Revisar intentos de autenticación/credenciales y forzar el cambio de contraseñas si aplica.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "4236a568f622c07a",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "abe8590bff",
+      "created_at": "2026-09-21T16:39:44",
+      "signature": "3ed7949552c488bbbcfe4d9a6dd1cb44d30ae4d13453cf10b11fabfd1f610440|2026-09-21T16:39:44",
+      "analyst": "Eduardo Meza",
+      "period": "Mañana (07:00)",
+      "entity": "Medalla Milagrosa",
+      "template": "ejecutivo",
+      "critical": 78,
+      "high": 1242,
+      "total": 1320,
+      "agents": 12,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Mañana (07:00)\n🏢 *Entidad:* Medalla Milagrosa\n📄 *Plantilla:* Ejecutivo\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *78*\n• 🟠 Eventos Alta Severidad: *1.242*\n• 🟢 Total de eventos: *1.320*\n• 💻 Agentes afectados: *12*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *76/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *63%*\n  - Eventos Alta Severidad: 🔴▲ *152%*\n  - Total de Eventos: 🔴▲ *86%*\n  - Agentes Afectados: 🟢▼ *7%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *ACGM111* presenta el mayor score de riesgo (100/100), concentrando la mayor actividad sospechosa del periodo.\n• Se identificaron 522 CVEs distintos, incluyendo *CVE-2026-45602*, *CVE-2026-47291*, *CVE-2026-42990* y más.\n\n*💻 Agentes afectados (12):*\n• ACGM111\n• SOC01\n• CT13NTB\n• SOC02\n• ACGRT13\n• QM48\n• PM05\n• hermes2\n• ACGR55\n• ACCA121\n• SrvHB03.medalla.coop\n• ACGM266\n\n*🚨 Prioridad*\n• Revisión inmediata de los *78* eventos críticos.\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n• Investigar el origen de los escaneos (ver IPs relevantes) a nivel de firewall/proxy.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt"
+      ],
+      "content_hash": "ed52af51a4da7648",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "70b2096d43",
+      "created_at": "2026-09-21T16:39:55",
+      "signature": "3ed7949552c488bbbcfe4d9a6dd1cb44d30ae4d13453cf10b11fabfd1f610440",
+      "analyst": "Eduardo Meza",
+      "period": "Mañana (07:00)",
+      "entity": "Medalla Milagrosa",
+      "template": "tecnico",
+      "critical": 78,
+      "high": 1242,
+      "total": 1320,
+      "agents": 12,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Mañana (07:00)\n🏢 *Entidad:* Medalla Milagrosa\n📄 *Plantilla:* Técnico\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *78*\n• 🟠 Eventos Alta Severidad: *1.242*\n• 🟢 Total de eventos: *1.320*\n• 💻 Agentes afectados: *12*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *76/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *63%*\n  - Eventos Alta Severidad: 🔴▲ *152%*\n  - Total de Eventos: 🔴▲ *86%*\n  - Agentes Afectados: 🟢▼ *7%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *ACGM111* presenta el mayor score de riesgo (100/100), concentrando la mayor actividad sospechosa del periodo.\n• Se identificaron 522 CVEs distintos, incluyendo *CVE-2026-45602*, *CVE-2026-47291*, *CVE-2026-42990* y más.\n\n*💻 Agentes afectados (12):*\n• ACGM111\n• SOC01\n• CT13NTB\n• SOC02\n• ACGRT13\n• QM48\n• PM05\n• hermes2\n• ACGR55\n• ACCA121\n• SrvHB03.medalla.coop\n• ACGM266\n\n*📋 Hallazgos destacados*\n• Se detectaron *522 CVEs* de alta severidad asociadas principalmente a *Microsoft Windows 10 Pro*, incluyendo *CVE-2026-45602*, *CVE-2026-47291*, *CVE-2026-42990* y 519 más. Se recomienda priorizar su actualización.\n• Se registraron *4 eventos* de escaneo agresivo de directorios / puertos.\n• Se detectaron *105 eventos* de procesos o comandos sospechosos (sdbinst.exe (regla Wazuh 92058), rule.level 12 + actividad de proceso, proceso en ruta inusual (AppData/Temp)). Se recomienda validar su legitimidad en los agentes afectados.\n\n*🌐 IPs relevantes detectadas (4 eventos):*\n• *172.17.1.230* – 🔒 IP privada (Red interna) – *2 eventos*\n• *186.12.184.90* – 🇦🇷 Argentina – *1 evento*\n• *201.222.49.229* – 🇵🇾 Paraguay – *1 evento*\n\n*🔍 Indicadores de Compromiso (IOCs) detectados:*\n• 📁 *Hashes de archivos:* 055D5868C0CF9319285B64CE9620C246, 6CEFF02B21DF4F48BA0A8EDBA108E79A, 6E2ECA67BC344FCCD03B22E356C3DDF8, 7D63FFC8FD3FCA887F8F6E6F7558B4FF, 87811A107EED62900B230C49A252170D6A7307E94A08307CE972F9B9B8155D54, 8838E793D912DCA700DAEC2089A09E63, 8BDE0AE40012BD639FC60E494CC32356, 9C7A38419B941FDF5096965AAD4561CE44F54934B43A0FFF342DE32EE221105B, B154C30F8B2D3E41E58D1BCCD5916559A4DF11363E2325963C8641363A703F76, B7D2C17E0038945AA4B72AE7A89E54D29B04CCC0FEB62DF5C9B7B67DE43C2530\n  ... y 2 más\n• 🌐 *Dominios:* OC01, OC02, XPLORER, ackgroundTaskHost, askhost, ecure, edalla, llHost, llhost, ppXapskvk16gk8da8kch5g4qxh42vxccved\n  ... y 2 más\n• 🔗 *URLs:* https://secure.medalla.coop.py/MedallaMilagrosaOnline/servlet/cmmhome?8LcrCtjGOYC9sC44rrRhSA==\"\n\n*⚔️ Correlación de Ataques Multi-fase:*\n• 📋 *Secuencia detectada:* Reconocimiento → Ejecución → Persistencia\n• ⚠️ *Patrón Kill Chain:* Recon → Ejecución → Persistencia – Reconocimiento (4), Ejecución (1219), Persistencia (90)\n• 📊 *Tácticas con hallazgos:* Reconocimiento (4), Ejecución (1219), Persistencia (90)\n\n*🧩 Clasificación MITRE ATT&CK*\n• *Reconocimiento (4 hallazgos):* Escaneos de puertos/directorios o fingerprinting detectados · T1595, T1046 · reglas Wazuh [31151]\n• *Ejecución (1.219 hallazgos):* Ejecución de código, comandos o scripts sospechosos detectada · T1059, T1203 · reglas Wazuh [23506]\n• *Persistencia (90 hallazgos):* Mecanismos de persistencia detectados · T1546.011, T1547, T1053 · reglas Wazuh [92058, 92213]\n\n*🚨 Prioridad*\n• Revisión inmediata de los *78* eventos críticos.\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n• Investigar el origen de los escaneos (ver IPs relevantes) a nivel de firewall/proxy.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "eb04a1e0f2261ed7",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "a71932c4b8",
+      "created_at": "2026-09-21T16:42:48",
+      "signature": "9436d6c73c0486d972b9d9f3f31c3dfbb3e1c3e7096e6e897ce118567e31736b",
+      "analyst": "Eduardo Meza",
+      "period": "Tarde (16:00)",
+      "entity": "Medalla Milagrosa",
+      "template": "tecnico",
+      "critical": 78,
+      "high": 1242,
+      "total": 1320,
+      "agents": 12,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Tarde (16:00)\n🏢 *Entidad:* Medalla Milagrosa\n📄 *Plantilla:* Técnico\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *78*\n• 🟠 Eventos Alta Severidad: *1.242*\n• 🟢 Total de eventos: *1.320*\n• 💻 Agentes afectados: *12*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *76/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *63%*\n  - Eventos Alta Severidad: 🔴▲ *152%*\n  - Total de Eventos: 🔴▲ *86%*\n  - Agentes Afectados: 🟢▼ *7%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *ACGM111* presenta el mayor score de riesgo (100/100), concentrando la mayor actividad sospechosa del periodo.\n• Se identificaron 522 CVEs distintos, incluyendo *CVE-2026-45602*, *CVE-2026-47291*, *CVE-2026-42990* y más.\n\n*💻 Agentes afectados (12):*\n• ACGM111\n• SOC01\n• CT13NTB\n• SOC02\n• ACGRT13\n• QM48\n• PM05\n• hermes2\n• ACGR55\n• ACCA121\n• SrvHB03.medalla.coop\n• ACGM266\n\n*📋 Hallazgos destacados*\n• Se detectaron *522 CVEs* de alta severidad asociadas principalmente a *Microsoft Windows 10 Pro*, incluyendo *CVE-2026-45602*, *CVE-2026-47291*, *CVE-2026-42990* y 519 más. Se recomienda priorizar su actualización.\n• Se registraron *4 eventos* de escaneo agresivo de directorios / puertos.\n• Se detectaron *105 eventos* de procesos o comandos sospechosos (sdbinst.exe (regla Wazuh 92058), rule.level 12 + actividad de proceso, proceso en ruta inusual (AppData/Temp)). Se recomienda validar su legitimidad en los agentes afectados.\n\n*🌐 IPs relevantes detectadas (4 eventos):*\n• *172.17.1.230* – 🔒 IP privada (Red interna) – *2 eventos*\n• *186.12.184.90* – 🇦🇷 Argentina – *1 evento*\n• *201.222.49.229* – 🇵🇾 Paraguay – *1 evento*\n\n*🔍 Indicadores de Compromiso (IOCs) detectados:*\n• 📁 *Hashes de archivos:* 055D5868C0CF9319285B64CE9620C246, 6CEFF02B21DF4F48BA0A8EDBA108E79A, 6E2ECA67BC344FCCD03B22E356C3DDF8, 7D63FFC8FD3FCA887F8F6E6F7558B4FF, 87811A107EED62900B230C49A252170D6A7307E94A08307CE972F9B9B8155D54, 8838E793D912DCA700DAEC2089A09E63, 8BDE0AE40012BD639FC60E494CC32356, 9C7A38419B941FDF5096965AAD4561CE44F54934B43A0FFF342DE32EE221105B, B154C30F8B2D3E41E58D1BCCD5916559A4DF11363E2325963C8641363A703F76, B7D2C17E0038945AA4B72AE7A89E54D29B04CCC0FEB62DF5C9B7B67DE43C2530\n  ... y 2 más\n• 🌐 *Dominios:* OC01, OC02, XPLORER, ackgroundTaskHost, askhost, ecure, edalla, llHost, llhost, ppXapskvk16gk8da8kch5g4qxh42vxccved\n  ... y 2 más\n• 🔗 *URLs:* https://secure.medalla.coop.py/MedallaMilagrosaOnline/servlet/cmmhome?8LcrCtjGOYC9sC44rrRhSA==\"\n\n*⚔️ Correlación de Ataques Multi-fase:*\n• 📋 *Secuencia detectada:* Reconocimiento → Ejecución → Persistencia\n• ⚠️ *Patrón Kill Chain:* Recon → Ejecución → Persistencia – Reconocimiento (4), Ejecución (1219), Persistencia (90)\n• 📊 *Tácticas con hallazgos:* Reconocimiento (4), Ejecución (1219), Persistencia (90)\n\n*🧩 Clasificación MITRE ATT&CK*\n• *Reconocimiento (4 hallazgos):* Escaneos de puertos/directorios o fingerprinting detectados · T1595, T1046 · reglas Wazuh [31151]\n• *Ejecución (1.219 hallazgos):* Ejecución de código, comandos o scripts sospechosos detectada · T1059, T1203 · reglas Wazuh [23506]\n• *Persistencia (90 hallazgos):* Mecanismos de persistencia detectados · T1546.011, T1547, T1053 · reglas Wazuh [92058, 92213]\n\n*🚨 Prioridad*\n• Revisión inmediata de los *78* eventos críticos.\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n• Investigar el origen de los escaneos (ver IPs relevantes) a nivel de firewall/proxy.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "a083cf84e83baddd",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "18af705260",
+      "created_at": "2026-09-21T16:42:56",
+      "signature": "f98d6fc7acc1a6033d66c23567c9b22453232402a34569caf0741fea42e61936",
+      "analyst": "Eduardo Meza",
+      "period": "Tarde (16:00)",
+      "entity": "Medalla Milagrosa",
+      "template": "tecnico",
+      "critical": 0,
+      "high": 23,
+      "total": 23,
+      "agents": 1,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Tarde (16:00)\n🏢 *Entidad:* Medalla Milagrosa\n📄 *Plantilla:* Técnico\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *0*\n• 🟠 Eventos Alta Severidad: *23*\n• 🟢 Total de eventos: *23*\n• 💻 Agentes afectados: *1*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *100/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *100%*\n  - Eventos Alta Severidad: 🟢▼ *97%*\n  - Total de Eventos: 🟢▼ *98%*\n  - Agentes Afectados: 🟢▼ *90%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *PC0092* presenta el mayor score de riesgo (100/100), concentrando la mayor actividad sospechosa del periodo.\n• Se identificaron 23 CVEs distintos, incluyendo *CVE-2026-87646*, *CVE-2026-87448*, *CVE-2026-87650* y más.\n\n*💻 Agentes afectados (1):*\n• PC0092\n\n*📋 Hallazgos destacados*\n• Se detectaron *23 CVEs* de alta severidad asociadas principalmente a *Google Chrome*, incluyendo *CVE-2026-87646*, *CVE-2026-87448*, *CVE-2026-87650* y 20 más. Se recomienda priorizar su actualización.\n\n*🧩 Clasificación MITRE ATT&CK*\n• *Ejecución (23 hallazgos):* Ejecución de código, comandos o scripts sospechosos detectada · T1059, T1203 · reglas Wazuh [23506]\n\n*🚨 Prioridad*\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "f5d124f9879a5cc2",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "31d671e696",
+      "created_at": "2026-09-21T16:43:06",
+      "signature": "944b9b3d8984324790b0367bb966c64ca5cc7c7f8fd180bd552450e13d0b25fd",
+      "analyst": "Eduardo Meza",
+      "period": "Tarde (16:00)",
+      "entity": "Petropar",
+      "template": "tecnico",
+      "critical": 0,
+      "high": 23,
+      "total": 23,
+      "agents": 1,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Tarde (16:00)\n🏢 *Entidad:* Petropar\n📄 *Plantilla:* Técnico\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *0*\n• 🟠 Eventos Alta Severidad: *23*\n• 🟢 Total de eventos: *23*\n• 💻 Agentes afectados: *1*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *100/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *100%*\n  - Eventos Alta Severidad: 🟢▼ *97%*\n  - Total de Eventos: 🟢▼ *98%*\n  - Agentes Afectados: 🟢▼ *90%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *PC0092* presenta el mayor score de riesgo (100/100), concentrando la mayor actividad sospechosa del periodo.\n• Se identificaron 23 CVEs distintos, incluyendo *CVE-2026-87646*, *CVE-2026-87448*, *CVE-2026-87650* y más.\n\n*💻 Agentes afectados (1):*\n• PC0092\n\n*📋 Hallazgos destacados*\n• Se detectaron *23 CVEs* de alta severidad asociadas principalmente a *Google Chrome*, incluyendo *CVE-2026-87646*, *CVE-2026-87448*, *CVE-2026-87650* y 20 más. Se recomienda priorizar su actualización.\n\n*🧩 Clasificación MITRE ATT&CK*\n• *Ejecución (23 hallazgos):* Ejecución de código, comandos o scripts sospechosos detectada · T1059, T1203 · reglas Wazuh [23506]\n\n*🚨 Prioridad*\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "9f47f68f72060a8d",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    },
+    {
+      "id": "025a64aa77",
+      "created_at": "2026-09-21T22:26:27",
+      "signature": "12eb0a1f85644cdd0923b38bcd765c303c03122b16e5cc22088aef6af67b3f01",
+      "analyst": "Eduardo Meza",
+      "period": "Mañana (07:00)",
+      "entity": "",
+      "template": "ejecutivo",
+      "critical": 12,
+      "high": 20,
+      "total": 46,
+      "agents": 21,
+      "report": "🛡️ *REPORTE SOC 24x7*\n\nHola, compartimos el *reporte SOC 24x7* correspondiente al turno indicado:\n\n👨‍💻 *Analista:* Eduardo Meza\n📅 *Fecha:* 21/09/2026\n🕒 *Periodo:* Turno Mañana (07:00)\n🏢 *Entidad:* No especificada\n📄 *Plantilla:* Ejecutivo\n\n*🔍 Resumen Ejecutivo*\n• 🔴 Eventos Críticos: *12*\n• 🟠 Eventos Alta Severidad: *20*\n• 🟢 Total de eventos: *46*\n• 💻 Agentes afectados: *21*\n\n*📊 Análisis de Riesgo y Tendencias*\n• 🎯 Score de Riesgo General: *15/100*\n• 📈 Tendencia vs últimos 3 días:\n  - Eventos Críticos: 🟢▼ *94%*\n  - Eventos Alta Severidad: 🟢▼ *95%*\n  - Total de Eventos: 🟢▼ *93%*\n  - Agentes Afectados: 🔴▲ *61%*\n\n*📋 Hallazgos Ejecutivos*\n• El agente *SRV-DC01* presenta el mayor score de riesgo (87/100), concentrando la mayor actividad sospechosa del periodo.\n• Se detectó ejecución de *Mimikatz*, herramienta de extracción de credenciales.\n• Se detectó uso de *PowerShell ofuscado* (-enc), técnica común en ataques avanzados.\n\n*💻 Agentes afectados (21):*\nSRV-DC01, SRV-WEB02, SRV-DB01, WS-PC-001, WS-PC-002,\nWS-PC-003, SRV-FILE01, SRV-APP01, WS-PC-004, SRV-VPN01,\nWS-PC-005, SRV-BACKUP01, WS-PC-006, SRV-EXCH01, WS-PC-007,\nSRV-FILE02, SRV-MAIL01, WS-PC-008, SRV-DC02, SRV-ESC01,\nSRV-ESC02\n\n*🚨 Prioridad*\n• Revisión inmediata de los *12* eventos críticos.\n• Priorizar la actualización/corrección de los CVEs identificados en los agentes afectados.\n• Investigar el origen de los escaneos (ver IPs relevantes) a nivel de firewall/proxy.\n• Validar los procesos/comandos sospechosos y aislar los hosts comprometidos si fuera necesario.\n• Revisar los servicios de Windows recién creados.\n• Revisar intentos de autenticación/credenciales y forzar el cambio de contraseñas si aplica.\n\n*✅ Estado:* Notificado para revisión\n\nAtendido por Eduardo Meza · Equipo SOC 24x7",
+      "output_formats": [
+        "txt",
+        "pdf",
+        "json",
+        "stix"
+      ],
+      "content_hash": "479e093b122e14f3",
+      "file_hashes": {},
+      "traceability": {
+        "generated_by": "SOC 24x7 Dashboard v3",
+        "retention_days": 3,
+        "auto_generated": false
+      }
+    }
+  ]
+}

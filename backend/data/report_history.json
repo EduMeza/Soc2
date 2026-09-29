@@ -1,0 +1,325 @@
+[
+  {
+    "id": "soc_report_20260929_173900284120",
+    "timestamp": "2026-09-29T17:39:08.802649Z",
+    "analyst": "Eduardo Meza",
+    "entity": "Cliente Tecnico",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:51:54 (horario de origen)",
+    "total_events": 30046,
+    "critical": 12174,
+    "high": 17858,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 76.2,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_173900284120.txt",
+      "json": "output\\soc_report_20260929_173900284120.json",
+      "pdf": "output\\soc_report_20260929_173900284120.pdf"
+    },
+    "summary": "Eventos críticos: 12174 · Alta severidad: 17858 · Total: 30046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_173659043693",
+    "timestamp": "2026-09-29T17:37:06.549062Z",
+    "analyst": "Eduardo Meza",
+    "entity": "Cliente API",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:51:54 (horario de origen)",
+    "total_events": 30046,
+    "critical": 12174,
+    "high": 17858,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 76.2,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_173659043693.txt",
+      "json": "output\\soc_report_20260929_173659043693.json",
+      "pdf": "output\\soc_report_20260929_173659043693.pdf"
+    },
+    "summary": "Eventos críticos: 12174 · Alta severidad: 17858 · Total: 30046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_173552931781",
+    "timestamp": "2026-09-29T17:35:53.507739Z",
+    "analyst": "Eduardo Meza",
+    "entity": "Cliente API",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:51:54 (horario de origen)",
+    "total_events": 30046,
+    "critical": 12174,
+    "high": 17858,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 76.2,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_173552931781.txt",
+      "json": "output\\soc_report_20260929_173552931781.json",
+      "pdf": "output\\soc_report_20260929_173552931781.pdf"
+    },
+    "summary": "Eventos críticos: 12174 · Alta severidad: 17858 · Total: 30046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_155220843814",
+    "timestamp": "2026-09-29T15:52:21.498118Z",
+    "analyst": "5205342",
+    "entity": "No especificada",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:51:54 (horario de origen)",
+    "total_events": 30046,
+    "critical": 12174,
+    "high": 17858,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 76.2,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_155220843814.txt",
+      "json": "output\\soc_report_20260929_155220843814.json",
+      "pdf": "output\\soc_report_20260929_155220843814.pdf"
+    },
+    "summary": "Eventos críticos: 12174 · Alta severidad: 17858 · Total: 30046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_153625515424",
+    "timestamp": "2026-09-29T15:36:25.785881Z",
+    "analyst": "Eduardo Meza",
+    "entity": "Medalla Milagrosa",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:32:03 (horario de origen)",
+    "total_events": 20046,
+    "critical": 11093,
+    "high": 8939,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 82.1,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_153625515424.txt",
+      "json": "output\\soc_report_20260929_153625515424.json",
+      "pdf": "output\\soc_report_20260929_153625515424.pdf"
+    },
+    "summary": "Eventos críticos: 11093 · Alta severidad: 8939 · Total: 20046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_153458445852",
+    "timestamp": "2026-09-29T15:34:58.861167Z",
+    "analyst": "Eduardo Meza",
+    "entity": "Medalla Milagrosa",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:32:03 (horario de origen)",
+    "total_events": 20046,
+    "critical": 11093,
+    "high": 8939,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 82.1,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_153458445852.txt",
+      "json": "output\\soc_report_20260929_153458445852.json",
+      "pdf": "output\\soc_report_20260929_153458445852.pdf"
+    },
+    "summary": "Eventos críticos: 11093 · Alta severidad: 8939 · Total: 20046 · Agentes: 175"
+  },
+  {
+    "id": "soc_report_20260929_153015581784",
+    "timestamp": "2026-09-29T15:30:16.507432Z",
+    "analyst": "5205342",
+    "entity": "No especificada",
+    "period": "2026-09-14T01:23:45 a 2026-09-29T15:21:02 (horario de origen)",
+    "total_events": 10046,
+    "critical": 10012,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 99.8,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_153015581784.txt",
+      "json": "output\\soc_report_20260929_153015581784.json",
+      "pdf": "output\\soc_report_20260929_153015581784.pdf"
+    },
+    "summary": "Eventos críticos: 10012 · Alta severidad: 20 · Total: 10046 · Agentes: 22"
+  },
+  {
+    "id": "soc_report_20260929_152126",
+    "timestamp": "2026-09-29T15:21:26.158539Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 10046,
+    "critical": 10012,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 99.8,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_152126.txt",
+      "json": "output\\soc_report_20260929_152126.json",
+      "pdf": "output\\soc_report_20260929_152126.pdf"
+    },
+    "summary": "Eventos críticos: 10012 · Alta severidad: 20 · Total: 10046 · Agentes: 22"
+  },
+  {
+    "id": "rpt_20260929_150228",
+    "timestamp": "2026-09-29T15:02:28.649549Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 46,
+    "critical": 12,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_150228.txt",
+      "json": "output\\soc_report_20260929_150228.json",
+      "pdf": "output\\soc_report_20260929_150228.pdf"
+    },
+    "summary": "Eventos críticos: 12 · Alta severidad: 20 · Total: 46 · Agentes: 21"
+  },
+  {
+    "id": "rpt_20260929_145805",
+    "timestamp": "2026-09-29T14:58:05.225341Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 46,
+    "critical": 12,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_145805.txt",
+      "json": "output\\soc_report_20260929_145805.json",
+      "pdf": "output\\soc_report_20260929_145805.pdf"
+    },
+    "summary": "Eventos críticos: 12 · Alta severidad: 20 · Total: 46 · Agentes: 21"
+  },
+  {
+    "id": "rpt_20260929_145611",
+    "timestamp": "2026-09-29T14:56:11.706403Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 46,
+    "critical": 12,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_145611.txt",
+      "json": "output\\soc_report_20260929_145611.json",
+      "pdf": "output\\soc_report_20260929_145611.pdf"
+    },
+    "summary": "Eventos críticos: 12 · Alta severidad: 20 · Total: 46 · Agentes: 21"
+  },
+  {
+    "id": "rpt_20260929_140724",
+    "timestamp": "2026-09-29T14:07:24.436048Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 46,
+    "critical": 12,
+    "high": 20,
+    "medium": 14,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_140724.txt",
+      "json": "output\\soc_report_20260929_140724.json",
+      "pdf_error": "Not enough horizontal space to render a single character"
+    },
+    "summary": "Eventos críticos: 12 · Alta severidad: 20 · Total: 46 · Agentes: 21"
+  },
+  {
+    "id": "rpt_20260929_130323",
+    "timestamp": "2026-09-29T13:03:23.717921Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "risk_score": 0.0,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_130323.txt",
+      "json": "output\\soc_report_20260929_130323.json",
+      "pdf_error": "Not enough horizontal space to render a single character"
+    },
+    "summary": "Eventos críticos: 0 · Alta severidad: 0 · Total: 0 · Agentes: 0"
+  },
+  {
+    "id": "rpt_20260929_130323",
+    "timestamp": "2026-09-29T13:03:23.023420Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "risk_score": 0.0,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_130323.txt",
+      "json": "output\\soc_report_20260929_130323.json",
+      "pdf_error": "Not enough horizontal space to render a single character"
+    },
+    "summary": "Eventos críticos: 0 · Alta severidad: 0 · Total: 0 · Agentes: 0"
+  },
+  {
+    "id": "rpt_20260929_130317",
+    "timestamp": "2026-09-29T13:03:17.655441Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "risk_score": 0.0,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_130317.txt",
+      "json": "output\\soc_report_20260929_130317.json",
+      "pdf_error": "Not enough horizontal space to render a single character"
+    },
+    "summary": "Eventos críticos: 0 · Alta severidad: 0 · Total: 0 · Agentes: 0"
+  },
+  {
+    "id": "rpt_20260929_012114",
+    "timestamp": "2026-09-29T01:21:14.098987Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 138,
+    "critical": 36,
+    "high": 60,
+    "medium": 42,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260929_012114.txt",
+      "json": "output\\soc_report_20260929_012114.json",
+      "pdf_error": "Not enough horizontal space to render a single character"
+    },
+    "summary": "Eventos críticos: 36 · Alta severidad: 60 · Total: 138 · Agentes: 21"
+  },
+  {
+    "id": "rpt_20260927_205050",
+    "timestamp": "2026-09-27T20:50:50.641745Z",
+    "analyst": "5205342",
+    "entity": "Organización",
+    "period": "Turno Noche (23:00)",
+    "total_events": 92,
+    "critical": 24,
+    "high": 40,
+    "medium": 28,
+    "low": 0,
+    "risk_score": 61.3,
+    "file_paths": {
+      "txt": "output\\soc_report_20260927_205050.txt",
+      "json": "output\\soc_report_20260927_205050.json",
+      "pdf_error": "fpdf2 no instalado. Ejecute: pip install fpdf2"
+    },
+    "summary": "Eventos críticos: 24 · Alta severidad: 40 · Total: 92 · Agentes: 21"
+  }
+]

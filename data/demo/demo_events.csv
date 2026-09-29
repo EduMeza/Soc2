@@ -1,0 +1,4 @@
+timestamp,source_ip,event_type,severity,status
+2026-09-25T10:00:00Z,192.168.1.10,failed_login,high,open
+2026-09-25T10:05:00Z,192.168.1.11,port_scan,medium,open
+2026-09-25T10:10:00Z,10.0.0.5,malware_detected,critical,open

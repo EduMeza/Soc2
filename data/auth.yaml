@@ -1,0 +1,28 @@
+{
+  "users": {
+    "12345678": {
+      "name": "Eduardo Meza",
+      "password": "$2b$12$Dpt8CSEOrZQ/mpzdLyuM.OtBQzi6.4tTrCiia0.2m3cOzmyqs6Saq",
+      "is_admin": true,
+      "must_change_password": false
+    },
+    "11111111": {
+      "name": "Viewer Test",
+      "password": "$2b$12$cNO7AkrfYdJSTxpWWS3XbOhdpwmgF9d6tmLXSewsCTkDuwFKx2Cx6",
+      "is_admin": false,
+      "role": "SOC_VIEWER",
+      "must_change_password": true
+    },
+    "99999999": {
+      "name": "Test Admin",
+      "password": "$2b$12$bPG5sEEwYdI3LQeR9ixZ3eBBDuKRyHtlh5OzoaMfDEfzzE9sUUN8S",
+      "is_admin": true,
+      "must_change_password": false
+    }
+  },
+  "cookie": {
+    "name": "soc24x7_auth",
+    "key": "d50c0c8b63b2e764fa2d2f6c0e196e4e5f4534ef9abba43163f2179117693a17",
+    "expiry_days": 3
+  }
+}

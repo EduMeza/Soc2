@@ -1,0 +1,54 @@
+Reporte SOC 24x7
+Entidad: Organización
+Analista: SOC Analyst
+Periodo: Turno Noche (23:00)
+Generado: 2026-09-29T14:07:24.419204Z
+
+=== RESUMEN EJECUTIVO ===
+Total eventos: 46
+Críticos: 12 | Alta: 20 | Media: 14 | Baja: 0
+Hosts afectados: 21 | Agentes: 21
+
+=== HALLAZGOS ===
+- 12 eventos críticos detectados - Revisión inmediata requerida
+- 20 eventos de alta severidad - Prioridad alta
+- Procesos/comandos sospechosos: Mimikatz, PowerShell, certutil, cmd.exe, lsass, mimikatz, mshta, powershell, psexec, rundll32
+- CVEs identificados: CVE-2021-44228, CVE-2023-34362, CVE-2023-44487
+
+=== IOCs ===
+  Dominio: chtasks
+  Dominio: ertutil
+  Dominio: p-login
+  Dominio: sass
+  Dominio: shta
+
+=== MITRE ATT&CK ===
+
+=== TIMELINE ===
+  2026-09-14T01:23:45 | SRV-DC01 | Critical | PowerShell ejecutó comando ofuscado (-enc SQBFAFgAKQ...)
+  2026-09-14T01:24:12 | SRV-DC01 | Critical | Posible uso de Mimikatz detectado | lsass.exe acceso
+  2026-09-14T01:25:03 | SRV-WEB02 | High | Escaneo de directorios web: GET /admin 403, /wp-login.php, /phpmyadmin
+  2026-09-14T01:27:50 | SRV-WEB02 | Critical | Explotación CVE-2021-44228 (Log4Shell) JNDI lookup detectada
+  2026-09-14T01:29:33 | SRV-WEB02 | Critical | Intento de explotación Apache Log4j RCE outbound
+  2026-09-14T01:31:11 | SRV-DB01 | High | Múltiples autenticaciones fallidas SQL (brute force)
+  2026-09-14T01:35:40 | SRV-DB01 | High | Logon account lockout - 25 intentos fallidos (origen 198.51.100.7)
+  2026-09-14T01:40:02 | WS-PC-001 | Medium | Puerto 445: escaneo NMAP detectado desde 192.168.1.55
+  2026-09-14T01:42:18 | WS-PC-002 | High | Conexión saliente hacia IP externa sospechosa - beacon HTTP a intervalos regular
+  2026-09-14T01:43:55 | WS-PC-002 | Critical | Conexión de comando y control (C2) detectada - patrón Cobalt Strike
+  2026-09-14T01:45:29 | WS-PC-003 | Medium | Nuevo servicio instalado: 'WindowsUpdateSvc' (desconocido)
+  2026-09-14T01:46:04 | WS-PC-003 | High | Persistencia: clave de registro Run modificada (HKLM\Software\Microsoft\Windows\
+  2026-09-14T01:48:12 | SRV-FILE01 | Critical | Exfiltración: gran transferencia outbound a destino externo (DNS tunneling)
+  2026-09-14T01:50:00 | SRV-FILE01 | High | Acceso sospechoso a archivos sensibles compartidos (\\corp\backup)
+  2026-09-14T01:52:31 | SRV-APP01 | Medium | Enumeración de directorios /etc/ en proxy inverso
+  2026-09-14T01:55:17 | SRV-APP01 | High | Intento de explotación CVE-2023-34362 (MOVEit) - data exfiltration upload
+  2026-09-14T02:01:44 | WS-PC-004 | Medium | Eliminación de definiciones de antivirus intentada por proceso no confiable
+  2026-09-14T02:05:08 | WS-PC-004 | Medium | PowerShell script block con técnica AMSI bypass
+  2026-09-14T02:08:22 | SRV-DC01 | High | Ejecución de schtasks.exe -create /sc onlogon para tarea de red
+  2026-09-14T02:10:33 | SRV-DC01 | Medium | Uso de herramientas de administración remota (psexec/wmiexec) inusual
+
+=== RECOMENDACIONES ===
+- Revisar y bloquear IPs maliciosas en firewall/IDS
+- Aislar hosts comprometidos y realizar análisis forense
+- Actualizar firmas de detección en SIEM/EDR
+- Revisar políticas de ejecución de scripts (PowerShell, CMD)
+- Implementar monitoreo de credenciales y accesos privilegiados
