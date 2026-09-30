@@ -2,6 +2,25 @@
 
 Stack: FastAPI + React (Vite/TS/Tailwind) + SQLite
 
+## Configuracion de entorno (obligatoria)
+
+El backend FastAPI (backend/app) NO tiene secretos ni credenciales por defecto. Todo se
+configura por variables de entorno (archivo `.env`, ignorado por Git; ver `.env.example`):
+
+- `JWT_SECRET` (obligatorio, minimo 32 caracteres). Sin valor por defecto, no se genera
+  automaticamente y no se registra en logs. Si falta o es un valor de ejemplo conocido, la
+  aplicacion no arranca con un error de configuracion explicito.
+  Generar uno: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
+- `INITIAL_USER` e `INITIAL_PASSWORD` (opcionales). El usuario inicial solo se crea si
+  AMBAS estan definidas; nunca sobrescribe un usuario existente, no imprime la contrasena y
+  siempre queda con `force_password_change=true`, por lo que el primer acceso exige
+  `/api/auth/change-password`. Sin esas variables no se crea ningun usuario.
+- Opcionales: `SECRET_KEY`, `APP_ENV`, `APP_HOST`, `APP_PORT`, `DATABASE_URL`, `TIMEZONE`,
+  `MAX_UPLOAD_MB`, `MAX_ROWS`, `CORS_ORIGINS`, `GEOIP_DB_PATH`, `GEOIP_API_KEY`.
+
+La autenticacion se mantiene igual: `OAuth2PasswordBearer`, JWT HS256, hash bcrypt y los
+endpoints `/api/auth/login`, `/api/auth/me`, `/api/auth/change-password`.
+
 ## Directorio exclusivo
 C:\Users\emeza.LEGACY\Documents\Proyectos\Soc2
 
@@ -25,7 +44,7 @@ Creado: C:\Users\emeza.LEGACY\Documents\Proyectos\Soc2\frontend\tsconfig.node.js
 
 ## Funcionalidades implementadas (verificadas o conectadas)
 
-- Login real: POST /api/auth/login con JSON {username, password}. Usuario inicial 5205342, hash bcrypt, token JWT con force_change. Verificado con respuesta real del backend reutilizado.
+- Login real: POST /api/auth/login con JSON {username, password}. Usuario inicial definido por entorno (INITIAL_USER / INITIAL_PASSWORD), hash bcrypt, token JWT con force_change. No existe usuario ni contrasena por defecto.
 - Import CSV real: POST /api/events/import con archivo .csv (multipart/form-data). Validacion basica de archivo, lectura robusta con UTF-8/BOM/fallback, ignorar comentarios (#), deteccion de delimitador, normalizacion de fechas, insercion en SQLite.
 - Dashboard conectado: todos los datos del frontend provienen de /public/sample_events.json (datos reales del archivo sample_events_1.csv del proyecto original) o del backend reutilizado. No hay datos inventados.
 - Pestañas funcionales (navegacion real): Resumen, MITRE ATT&CK, Eventos relevantes, Tabla, Reporte, Historial, Threat Intel. Cada pestaña muestra contenido real basado en datos.
@@ -54,7 +73,7 @@ Nota sobre importacion del archivo grande (sample_events_2.csv, 1.2MB): el endpo
 Flujo real verificado (o conectado funcionalmente):
 1. Iniciar backend: .\scripts\start_soc.ps1 (o .\scripts\start_backend.ps1 directamente)
 2. Iniciar frontend: cd frontend; npm run dev (o npm install primero si es necesario)
-3. Login en http://localhost:5173 con usuario 5205342, contrasena 5205342 -> respuesta con token JWT y mensaje de cambio de contrasena requerido (force_change=true)
+3. Login en http://localhost:5173 con las credenciales definidas en INITIAL_USER / INITIAL_PASSWORD (ver .env) -> respuesta con token JWT y mensaje de cambio de contrasena requerido (force_change=true)
 4. Dashboard carga datos del archivo sample_events.json (46 eventos reales del CSV del proyecto original)
 5. Pestañas funcionales: Resumen (KPIs + graficos), MITRE ATT&CK, Eventos relevantes, Tabla, Reporte (con opciones de formato y descarga), Historial, Threat Intel
 6. Import CSV conectado al endpoint /api/events/import
@@ -89,7 +108,9 @@ Nota sobre base SQLite: La ruta es relativa (database_path construido con os.pat
 
 Nota sobre Wazuh: No se implemento en esta fase (como se indica en el plan original: "NO implementar Wazuh ni mocks en la UI final"). El backend reutilizado (Soc) no requiere Wazuh para funcionar con los datos de CSV existentes.
 
-Nota sobre cambio de contrasena inicial: El backend reutilizado (Soc) tiene el endpoint /api/auth/change-password con verificacion de contrasena actual y actualizacion a hash bcrypt. El frontend muestra el mensaje de cambio de contrasena requerido (force_change=true) y esta preparado para enviar al endpoint de cambio de contrasena.
+Nota sobre cambio de contrasena inicial: El backend reutilizado (Soc) tiene el endpoint /api/auth/change-password con verificacion de contrasena actual y actualizacion a hash bcrypt. No se publica ninguna contrasena por defecto: el usuario creado por bootstrap (INITIAL_USER / INITIAL_PASSWORD) queda con force_password_change=true y debe cambiar la contrasena en el primer acceso. El frontend muestra el mensaje de cambio de contrasena requerido y esta preparado para enviar al endpoint de cambio de contrasena.
+
+Nota sobre secretos: JWT_SECRET es obligatorio y solo se lee del entorno (archivo .env, ignorado por Git). No hay valores por defecto, no se genera automaticamente y no se imprime en logs ni en la consola; si falta, el backend no inicia. Los scripts PowerShell no muestran usuario ni contrasena. Referencias de ejemplo en .env.example.
 
 Nota sobre logout: El frontend tiene el componente visual preparado pero el backend reutilizado (Soc) tiene el endpoint /api/auth/logout. El componente React no implementa el cierre de sesion con redireccion visual completa, pero la funcionalidad de autenticacion esta completa.
 

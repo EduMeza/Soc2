@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from ..core import security
+from ..core.config import settings
 from ..core.database import get_db
 from ..models.user import User
 from datetime import datetime
@@ -76,16 +77,42 @@ def change_password(req: ChangePasswordRequest, current_user: User = Depends(get
     return {"message": "Password changed successfully"}
 
 
-# Bootstrap usuario inicial si no existe
+# Bootstrap usuario inicial (solo si INITIAL_USER e INITIAL_PASSWORD estan configurados)
 from ..core.database import Base, SessionLocal, engine
-Base.metadata.create_all(bind=engine)
 
-with SessionLocal() as db:
-    if not db.query(User).filter(User.username == security.INITIAL_USER).first():
-        new_user = User(
-            username=security.INITIAL_USER,
-            password_hash=security.hash_password(security.INITIAL_PASSWORD),
-            force_password_change=False
+
+def bootstrap_initial_user() -> bool:
+    """Crea el usuario inicial unicamente con configuracion explicita del entorno.
+
+    - No se ejecuta sin INITIAL_USER e INITIAL_PASSWORD definidos.
+    - No sobrescribe usuarios existentes.
+    - No imprime la contrasena.
+    - El usuario creado queda con force_password_change=True.
+    """
+    credentials = security.get_bootstrap_credentials()
+    if credentials is None:
+        if settings.INITIAL_USER or settings.INITIAL_PASSWORD:
+            print(
+                "[auth] Bootstrap omitido: se requieren INITIAL_USER e INITIAL_PASSWORD "
+                "configurados de forma explicita."
+            )
+        return False
+
+    username, password = credentials
+    with SessionLocal() as db:
+        if db.query(User).filter(User.username == username).first():
+            return False
+        db.add(
+            User(
+                username=username,
+                password_hash=security.hash_password(password),
+                force_password_change=True,
+            )
         )
-        db.add(new_user)
         db.commit()
+    print("[auth] Usuario inicial creado desde el entorno. Se requiere cambio de contrasena en el primer acceso.")
+    return True
+
+
+Base.metadata.create_all(bind=engine)
+bootstrap_initial_user()
