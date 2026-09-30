@@ -23,6 +23,6 @@ Write-Host "`n=== SOC 24x7 INICIADO ===" -ForegroundColor Green
 Write-Host "Dashboard:     http://localhost:5173" -ForegroundColor Cyan
 Write-Host "API Backend:   http://localhost:8000" -ForegroundColor Cyan
 Write-Host "API Docs:      http://localhost:8000/docs" -ForegroundColor Cyan
-Write-Host "Usuario:       5205342" -ForegroundColor Gray
-Write-Host "Contraseña:    5205342" -ForegroundColor Gray
+Write-Host "`nCredenciales: definidas por entorno (INITIAL_USER / INITIAL_PASSWORD). No se muestran por seguridad." -ForegroundColor Gray
+Write-Host "JWT_SECRET:    requerido en el entorno (ver .env.example). No se muestra por seguridad." -ForegroundColor Gray
 Write-Host "`nPara detener: .\scripts\stop_soc.ps1" -ForegroundColor Gray
