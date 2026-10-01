@@ -1,210 +1,110 @@
-"""Normalización de datos del CSV."""
-from __future__ import annotations
-
-import re
+"""Single canonical CSV normalization boundary. Naive source times use configured timezone."""
+import hashlib
+import json
+import ipaddress
 import unicodedata
-from typing import Any
+import re
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+from pydantic import BaseModel
+from app.core.config import settings
 
-import pandas as pd
-import numpy as np
-
-from app.config import SEVERITY_MAP, SEVERITY_LEVEL_RANGES, CANONICAL_FIELDS, COLUMN_ALIASES
-
-
-def _norm(value: object) -> str:
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return ""
-    return str(value).strip()
-
-
-def _fold(value: str) -> str:
-    text = unicodedata.normalize("NFKD", value)
-    return "".join(c for c in text if not unicodedata.combining(c))
-
-
-SEVERITY_MAP = {
-    "critical": "Critical", "critico": "Critical", "critica": "Critical", "emergency": "Critical", "nivelcritico": "Critical",
-    "4": "Critical", "5": "Critical",
-    "high": "High", "alta": "High", "alto": "High", "elevated": "High", "3": "High",
-    "medium": "Medium", "media": "Medium", "moderate": "Medium", "warning": "Medium", "2": "Medium",
-    "low": "Low", "baja": "Low", "bajo": "Low", "info": "Low", "informational": "Low", "informative": "Low", "notification": "Low", "1": "Low",
+ALIASES = {
+ 'timestamp': ['timestamp', '@timestamp', 'fecha', 'datetime', 'time', 'date'],
+ 'agent': ['agent.name', 'agent', 'agente', 'host', 'hostname'],
+ 'hostname': ['hostname', 'host', 'computername', 'data.win.system.computer', 'agent.name'],
+ 'severity': ['rule.level', 'severity', 'severidad', 'level', 'prioridad'],
+ 'rule_id': ['rule.id', 'rule_id', 'regla', 'rule', 'eventcode'],
+ 'rule_description': ['rule.description', 'rule_description', 'description', 'descripcion', 'message', 'data.win.system.message', 'full_log'],
+ 'source_ip': ['data.srcip', 'data.win.eventdata.ipAddress', 'source_ip', 'src_ip', 'srcip', 'origen', 'source'],
+ 'destination_ip': ['data.dstip', 'destination_ip', 'dst_ip', 'destino', 'destination'],
+ 'process': ['data.win.eventdata.image', 'data.win.eventdata.processName', 'process', 'proceso', 'image', 'executable'],
+ 'command': ['data.win.eventdata.commandLine', 'command', 'commandline'],
+ 'username': ['data.win.eventdata.targetUserName', 'username', 'user', 'usuario'],
+ 'cve': ['cve', 'cve_id', 'data.vulnerability.cve'],
+ 'file_path': ['file_path', 'file', 'data.win.eventdata.targetFilename'],
+ 'source_port': ['source_port', 'data.srcport'], 'destination_port': ['destination_port', 'data.dstport'],
+ 'protocol': ['protocol', 'data.protocol'], 'status': ['status', 'estado'],
+ 'event_type': ['event_type', 'data.id'], 'source': ['source_type'],
 }
 
-SEVERITY_LEVEL_RANGES = [
-    (15, 15, "Critical"),
-    (12, 14, "High"),
-    (4, 5, "Critical"),
-    (3, 3, "High"),
-    (2, 2, "Medium"),
-    (1, 1, "Low"),
-]
+def fold(value):
+    return re.sub('[^a-z0-9]', '', ''.join(c for c in unicodedata.normalize('NFKD', str(value).lower()) if not unicodedata.combining(c)))
 
+def detect_columns(columns):
+    lookup = {fold(c): c for c in columns}
+    return {key: next(lookup[fold(a)] for a in aliases if fold(a) in lookup)
+            for key, aliases in ALIASES.items() if any(fold(a) in lookup for a in aliases)}
 
-def _norm(value: object) -> str:
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return ""
-    return str(value).strip()
+def normalize_severity(value, numeric_level=False):
+    text = fold(value)
+    if text.isdigit():
+        n = int(text)
+        if numeric_level:
+            return 'Critical' if n >= 15 else 'High' if n >= 12 else 'Medium' if n >= 7 else 'Low' if n >= 1 else 'Info'
+        return {5:'Critical',4:'Critical',3:'High',2:'Medium',1:'Low',0:'Info'}.get(n, 'Unknown')
+    for name, aliases in {'Critical':['critical','critico','critica'], 'High':['high','alta','alto'],
+                          'Medium':['medium','media','medio','warning'], 'Low':['low','bajo','baja'],
+                          'Info':['info','informational']}.items():
+        if text in aliases:
+            return name
+    return 'Unknown'
 
+class NormalizedEvent(BaseModel):
+    timestamp: datetime
+    agent: str = ''
+    hostname: str = ''
+    severity: str = 'Unknown'
+    original_severity: str = ''
+    rule_id: str = ''
+    rule_description: str = ''
+    source_ip: str = ''
+    destination_ip: str = ''
+    source_port: int = 0
+    destination_port: int = 0
+    process: str = ''
+    command: str = ''
+    username: str = ''
+    cve: str = ''
+    file_path: str = ''
+    protocol: str = ''
+    status: str = ''
+    source: str = ''
+    event_type: str = ''
+    raw_event: str
+    event_fingerprint: str
 
-def _fold(value: str) -> str:
-    text = unicodedata.normalize("NFKD", value)
-    return "".join(c for c in text if not unicodedata.combining(c))
-
-
-def normalize_severity(value: object) -> str:
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return "Unknown"
-    low = str(value).strip().casefold()
-    low_folded = value.strip().casefold()
-    if low.startswith("cri"):
-        return "Critical"
-    if low.startswith("hig") or low.startswith("alt") or low.startswith("ele"):
-        return "High"
-    if low.startswith("med") or low.startswith("mod") or low.startswith("war"):
-        return "Medium"
-    if low.startswith("low") or low.startswith("baj") or low.startswith("inf"):
-        return "Low"
-    low_folded = str(value).strip().casefold()
-    if low_folded in {
-        "critical": "Critical", "critico": "Critical", "critica": "Critical", "emergency": "Critical", "nivelcritico": "Critical",
-        "4": "Critical", "5": "Critical",
-        "high": "High", "alta": "High", "alto": "High", "elevated": "High", "3": "High",
-        "medium": "Medium", "media": "Medium", "moderate": "Medium", "warning": "Medium", "2": "Medium",
-        "low": "Low", "baja": "Low", "bajo": "Low", "info": "Low", "informational": "Low", "informative": "Low", "notification": "Low", "1": "Low",
-    }:
-        return SEVERITY_MAP[low_folded]
-    match = re.search(r"\d{1,3}", low)
-    if match:
-        level = int(match.group())
-        for lo, hi, canonical in [
-            (15, 15, "Critical"),
-            (12, 14, "High"),
-            (4, 5, "Critical"),
-            (3, 3, "High"),
-            (2, 2, "Medium"),
-            (1, 1, "Low"),
-        ]:
-            if lo <= level <= hi:
-                return canonical
-    return "Unknown"
-
-
-def normalize_severity(value: object) -> str:
-    import re
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return "Unknown"
-    low = str(value).strip().casefold()
-    if low.startswith("cri"):
-        return "Critical"
-    if low.startswith("hig") or low.startswith("alt") or low.startswith("ele"):
-        return "High"
-    if low.startswith("med") or low.startswith("mod") or low.startswith("war"):
-        return "Medium"
-    if low.startswith("low") or low.startswith("baj") or low.startswith("inf"):
-        return "Low"
-    low_folded = low
-    SEVERITY_MAP = {
-        "critical": "Critical", "critico": "Critical", "critica": "Critical", "emergency": "Critical", "nivelcritico": "Critical",
-        "4": "Critical", "5": "Critical",
-        "high": "High", "alta": "High", "alto": "High", "elevated": "High", "3": "High",
-        "medium": "Medium", "media": "Medium", "moderate": "Medium", "warning": "Medium", "2": "Medium",
-        "low": "Low", "baja": "Low", "bajo": "Low", "info": "Low", "informational": "Low", "informative": "Low", "notification": "Low", "1": "Low",
-    }
-    if low_folded in SEVERITY_MAP:
-        return SEVERITY_MAP[low_folded]
-    match = re.search(r"\d{1,3}", low)
-    if match:
-        level = int(match.group())
-        for lo, hi, canonical in [
-            (15, 15, "Critical"),
-            (12, 14, "High"),
-            (4, 5, "Critical"),
-            (3, 3, "High"),
-            (2, 2, "Medium"),
-            (1, 1, "Low"),
-        ]:
-            if lo <= level <= hi:
-                return canonical
-    return "Unknown"
-
-
-def normalize_text(value: object) -> str:
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return ""
-    return str(value).strip()
-
-
-def normalize_dataframe(df, detected: dict[str, str]) -> pd.DataFrame:
-    out = df.copy()
-    for canonical in ("severity", "agent", "timestamp", "rule", "description", "src_ip", "dst_ip", "cve", "process", "status", "user"):
-        if canonical not in out.columns:
-            out[canonical] = ""
-    if "severity" in out.columns:
-        out["severity"] = out["severity"].apply(lambda v: normalize_severity(v) if hasattr(v, "__call__") else v)
-    return out
-
-
-def normalize_severity_series(series: pd.Series) -> pd.Series:
-    return series.apply(normalize_severity)
-
-
-def normalize_timestamp(series: pd.Series) -> pd.Series:
-    return series.apply(lambda v: str(v).strip() if v is not None else "")
-
-
-def normalize_agent(series: pd.Series) -> pd.Series:
-    return series.apply(lambda v: str(v).strip() if v is not None else "")
-
-
-def normalize_user(series: pd.Series) -> pd.Series:
-    return series.apply(lambda v: str(v).strip() if v is not None else "")
-
-
-def normalize_ip(series: pd.Series) -> pd.Series:
-    def _norm_ip(v):
-        if v is None or (isinstance(v, float) and pd.isna(v)):
-            return ""
-        return str(v).strip()
-    return series.apply(_norm_ip)
-
-
-def detect_columns(columns: list[str]) -> dict[str, str]:
-    COLUMN_ALIASES = {
-        "severity": {"rulelevel", "severity", "severidad", "prioridad", "priority", "level", "nivel", "criticality", "criticidad", "gravedad", "risk", "riesgo", "sevrity"},
-        "agent": {"agent", "agente", "hostname", "host", "computername", "computer", "equipo", "workstation", "machine", "maquina", "wazuhagent", "agentname", "agentid", "host_name", "computer_name"},
-        "timestamp": {"timestamp", "time", "fecha", "datetime", "date", "hora", "event_time", "created", "created_at", "time_created", "when"},
-        "rule": {"rule", "rule_id", "rule_name", "regla", "signature", "signature_id", "azure", "detections", "eventcode", "event_id", "id"},
-        "description": {"description", "descripcion", "message", "mensaje", "details", "detalle", "summary", "resumen", "log", "event", "text", "full_log", "alert", "event_title", "log_notes", "data"},
-        "src_ip": {"src_ip", "source_ip", "srcip", "sourceip", "ip_origen", "source", "src", "origen", "sourceaddress", "srcaddress", "srcaddr", "direccion_ip_origen", "sip"},
-        "dst_ip": {"dst_ip", "dest_ip", "destination_ip", "dstip", "destip", "ip_destino", "destino", "destination", "dst", "dest", "destinationaddress", "dstaddress", "dip"},
-        "cve": {"cve", "cve_id", "vulnerability", "vuln_id"},
-        "process": {"process", "proceso", "process_name", "processname", "module", "executable", "program", "image", "file"},
-        "user": {"user", "usuario", "username", "principal", "account", "cuenta", "actor", "actoruser", "targetusername", "user.name"},
-        "status": {"status", "estado", "action", "accion", "result", "outcome", "success", "eventaction", "event_type"},
-    }
-
-    def normalize(text: str) -> str:
-        import re
-        return re.sub(r"[^a-z0-9]", "", text.lower())
-
-    normalized = {normalize(c): c for c in columns}
-    detected = {}
-    for canonical, aliases in {
-        "severity": {"rulelevel", "severity", "severidad", "prioridad", "priority", "level", "nivel", "criticality", "criticidad", "gravedad", "risk", "riesgo", "sevrity"},
-        "agent": {"agent", "agente", "hostname", "host", "computername", "computer", "equipo", "workstation", "machine", "maquina", "wazuhagent", "agentname", "agentid", "host_name", "computer_name"},
-        "timestamp": {"timestamp", "time", "fecha", "datetime", "date", "hora", "event_time", "created", "created_at", "time_created", "when"},
-        "rule": {"rule", "rule_id", "rule_name", "regla", "signature", "signature_id", "azure", "detections", "eventcode", "event_id", "id"},
-        "description": {"description", "descripcion", "message", "mensaje", "details", "detalle", "summary", "resumen", "log", "event", "text", "full_log", "alert", "event_title", "log_notes", "data"},
-        "src_ip": {"src_ip", "source_ip", "srcip", "sourceip", "ip_origen", "source", "src", "origen", "sourceaddress", "srcaddress", "srcaddr", "direccion_ip_origen", "sip"},
-        "dst_ip": {"dst_ip", "dest_ip", "destination_ip", "dstip", "destip", "ip_destino", "destino", "destination", "dst", "dest", "destinationaddress", "dstaddress", "dip"},
-        "cve": {"cve", "cve_id", "vulnerability", "vuln_id"},
-        "process": {"process", "proceso", "process_name", "processname", "module", "executable", "program", "image", "file"},
-        "user": {"user", "usuario", "username", "principal", "account", "cuenta", "actor", "actoruser", "targetusername", "user.name"},
-        "status": {"status", "estado", "action", "accion", "result", "outcome", "success", "eventaction", "event_type"},
-    }.items():
-        for alias in aliases:
-            norm_alias = re.sub(r"[^a-z0-9]", "", alias.lower())
-            if norm_alias in normalized:
-                detected[canonical] = normalized[norm_alias]
-                break
-    return detected
+def normalize_row(row, detected):
+    values = {key: str(row.get(col) or '').strip() for key, col in detected.items()}
+    raw_time = values.get('timestamp', '')
+    try:
+        stamp = datetime.fromisoformat(raw_time.replace('Z', '+00:00'))
+    except ValueError:
+        try:
+            stamp = datetime.strptime(raw_time, '%b %d, %Y @ %H:%M:%S.%f')
+        except ValueError:
+            raise ValueError('timestamp inválido: fila rechazada')
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=ZoneInfo(settings.TIMEZONE))
+    values['timestamp'] = stamp.astimezone(timezone.utc).replace(tzinfo=None)
+    values['hostname'] = values.get('hostname') or values.get('agent', '')
+    values['original_severity'] = values.get('severity', '')
+    values['severity'] = normalize_severity(values.get('severity', ''), fold(detected.get('severity', '')) == 'rulelevel')
+    warnings = []
+    for key in ['source_ip', 'destination_ip']:
+        text = values.get(key, '')
+        if text:
+            try:
+                values[key] = str(ipaddress.ip_address(text))
+            except ValueError:
+                values[key] = ''
+                warnings.append(key + ' inválida; conservada en raw_event')
+    for key in ['source_port', 'destination_port']:
+        text = values.get(key, '')
+        values[key] = int(text) if text.isdigit() and 0 <= int(text) <= 65535 else 0
+    values['raw_event'] = json.dumps(row, ensure_ascii=False, sort_keys=True)
+    fields = ['timestamp', 'agent', 'hostname', 'rule_id', 'source_ip', 'destination_ip', 'rule_description', 'process', 'command', 'cve', 'username', 'source_port', 'destination_port', 'protocol', 'file_path']
+    extra = {key: value for key,value in row.items() if key not in detected.values() and ('.' in key or key in ['full_log','_id']) and value not in (None,'')}
+    fingerprint = json.dumps([[str(values.get(k, '')) for k in fields],extra], ensure_ascii=False, sort_keys=True)
+    values['event_fingerprint'] = hashlib.sha256(fingerprint.encode()).hexdigest()
+    return NormalizedEvent(**values), warnings

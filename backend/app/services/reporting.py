@@ -4,7 +4,7 @@ from __future__ import annotations
 import io
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -34,7 +34,7 @@ class ReportData:
     findings: list = field(default_factory=list)
     recommendations: list = field(default_factory=list)
     iocs_data: dict = field(default_factory=dict)
-    generated_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    generated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 def _date(data: ReportData) -> str:
@@ -269,16 +269,13 @@ def generate_pdf_report(data: ReportData) -> bytes:
 
 def generate_report_files(report_data: ReportData, output_dir: Path) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
-    report_id = f"soc_report_{datetime.utcnow().strftime('%Y%m%d_%H%M%S%f')}"
+    report_id = f"soc_report_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S%f')}"
     results = {}
     for extension, content in [('txt', generate_txt_report(report_data)), ('json', generate_json_report(report_data))]:
         path = output_dir / f'{report_id}.{extension}'
         path.write_text(content, encoding='utf-8')
         results[extension] = str(path)
-    try:
-        path = output_dir / f'{report_id}.pdf'
-        path.write_bytes(generate_pdf_report(report_data))
-        results['pdf'] = str(path)
-    except Exception as error:
-        results['pdf_error'] = str(error)
+    path = output_dir / f'{report_id}.pdf'
+    path.write_bytes(generate_pdf_report(report_data))
+    results['pdf'] = str(path)
     return {'report_id': report_id, 'files': results}

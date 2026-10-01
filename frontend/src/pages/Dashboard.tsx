@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 import { SummaryData } from '../types';
 import { SeverityDonut } from '../charts/SeverityDonut';
 import { TopAgentsChart, TopHostsChart } from '../charts/TopCharts';
 import { RiskChart } from '../charts/RiskChart';
 
 export const Dashboard: React.FC = () => {
+  const revision = useDataRevision();
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [severity, setSeverity] = useState<Record<string, number>>({});
   const [agents, setAgents] = useState<Array<{agent: string; count: number}>>([]);
@@ -26,7 +28,7 @@ export const Dashboard: React.FC = () => {
     } catch (e) { setError(e instanceof Error ? e.message : 'No se pudieron cargar los indicadores'); }
     finally { setLoading(false); }
   };
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [revision]);
   const ranking = (rows: Array<{label: string; count: number}>, color: string) => rows.length ? <div className="space-y-4">{rows.map((row, index) => <div key={row.label}>
     <div className="flex justify-between gap-4 mb-2 text-sm"><span className="truncate" title={row.label}><span className="text-slate-500 mr-3">{String(index + 1).padStart(2, '0')}</span>{row.label}</span><strong className="tabular-nums">{row.count.toLocaleString()}</strong></div>
     <div className="h-1.5 rounded-full bg-slate-800"><div className={`h-full rounded-full ${color}`} style={{width: `${row.count / Math.max(...rows.map(r => r.count), 1) * 100}%`}} /></div>
@@ -48,7 +50,7 @@ export const Dashboard: React.FC = () => {
         <article className="chart-card"><h2>Hosts con mayor actividad</h2><p className="chart-caption">Hostname o agente cuando no hay hostname</p><TopHostsChart data={hosts} /></article>
         <article className="chart-card"><h2>Índice de riesgo</h2><p className="chart-caption">Escala de 0 a 100 · no representa probabilidad de compromiso</p><RiskChart data={risk} /></article>
         <article className="chart-card"><h2>Reglas más frecuentes</h2><p className="chart-caption">Concentración de actividad por regla</p>{ranking(rules.map(r => ({label:r.rule,count:r.count})), 'bg-violet-400')}</article>
-        <article className="chart-card"><h2>IPs de origen observadas</h2><p className="chart-caption">Incluye direcciones privadas y públicas</p>{ranking(ips.map(i => ({label:i.ip,count:i.count})), 'bg-cyan-400')}</article>
+        <article className="chart-card"><h2>IPs observadas: origen y destino</h2><p className="chart-caption">Incluye direcciones privadas y públicas</p>{ranking(ips.map(i => ({label:i.ip,count:i.count})), 'bg-cyan-400')}</article>
       </section>
     </>}
   </div>;

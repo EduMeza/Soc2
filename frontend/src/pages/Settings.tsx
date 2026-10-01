@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { ScheduleSettings } from '../components/ScheduleSettings';
 
 export const Settings: React.FC = () => {
   const { user, forceChange, changePassword } = useAuth();
@@ -75,35 +76,14 @@ export const Settings: React.FC = () => {
         {message && <p className={`text-sm ${message.includes('Error') || message.includes('no coinciden') || message.includes('8 caracteres') ? 'text-red-400' : 'text-emerald-400'}`}>{message}</p>}
       </section>
 
-      <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4">
-        <h3 className="text-xl font-extrabold text-white">Preferencias de la UI</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-600 rounded" />
-            <span className="text-slate-300">Animaciones suaves</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" defaultChecked className="w-4 h-4 accent-emerald-600 rounded" />
-            <span className="text-slate-300">Tema oscuro automático</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" className="w-4 h-4 accent-emerald-600 rounded" />
-            <span className="text-slate-300">Notificaciones de eventos críticos</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" className="w-4 h-4 accent-emerald-600 rounded" />
-            <span className="text-slate-300">Actualización automática del dashboard</span>
-          </label>
-        </div>
-      </section>
+      {!forceChange && <ScheduleSettings />}
 
       <section className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
         <h3 className="text-xl font-extrabold text-white mb-4">Información de la cuenta</h3>
         <div className="space-y-2 text-slate-300">
-          <p><strong>Usuario:</strong> {user?.username || '5205342'}</p>
-          <p><strong>Rol:</strong> Analista SOC</p>
+           <p><strong>Usuario:</strong> {user?.username}</p>
+          <p><strong>Tipo:</strong> Cuenta SOC local</p>
           <p><strong>Estado:</strong> <span className="text-emerald-400">Activo</span></p>
-          <p><strong>Último acceso:</strong> {new Date().toLocaleString()}</p>
         </div>
       </section>
     </div>

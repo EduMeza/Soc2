@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 import { MitreChart } from '../charts/MitreChart';
 
 interface MitreData {
@@ -8,6 +9,7 @@ interface MitreData {
 }
 
 export const Mitre: React.FC = () => {
+  const revision = useDataRevision();
   const [mitreData, setMitreData] = useState<MitreData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,7 @@ export const Mitre: React.FC = () => {
       }
     };
     fetchMitre();
-  }, []);
+  }, [revision]);
 
   if (loading) {
     return (

@@ -1,117 +1,72 @@
-"""Programador de reportes automáticos."""
-from __future__ import annotations
-import json
-import threading
-import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any
-from dataclasses import dataclass, field
-from typing import Optional
+from datetime import datetime, time, timezone
+from zoneinfo import ZoneInfo
+from threading import Thread, Event as StopEvent
+from sqlalchemy.exc import IntegrityError
+from app.core.config import settings
+from app.models.persistence import AppSetting, SchedulerRun, now, uid
+from app.services.report_store import generate
+from app.services.audit import audit
 
-SCHEDULE_FILE = Path("data/schedule_config.json")
-SCHEDULE_LOG = Path("data/schedule_log.json")
+SHIFTS = {'07:00':(0,7),'16:00':(7,16),'23:00':(16,23)}
 
-SHIFTS = {
-    "Mañana (07:00)": "Mañana (07:00)",
-    "Tarde (16:00)": "Tarde (16:00)",
-    "Noche (23:00)": "Noche (23:00)",
-}
+def period_for(day, shift):
+    start,end = SHIFTS[shift]
+    zone = ZoneInfo(settings.TIMEZONE)
+    return tuple(datetime.combine(day,time(hour=h),zone).astimezone(timezone.utc).replace(tzinfo=None) for h in [start,end])
 
+def resolve_shift(moment):
+    local = moment.astimezone(ZoneInfo(settings.TIMEZONE))
+    return next((shift for shift in SHIFTS if local.hour == int(shift[:2]) and local.minute < 5),None)
 
-@dataclass
-class ScheduleConfig:
-    enabled: bool = False
-    shifts: list[str] = field(default_factory=lambda: ["Mañana (07:00)", "Tarde (16:00)", "Noche (23:00)"])
-    template: str = "ejecutivo"
-    entity: str = "Organización"
-    analyst: str = "Sistema Automatizado"
-    timezone: str = "America/Asuncion"
+def configuration(db):
+    record = db.get(AppSetting,'schedule')
+    return record.value if record else {'enabled':False,'timezone':settings.TIMEZONE,'times':list(SHIFTS),'entity':''}
 
+def execute(db, username, moment=None, shift=None):
+    moment = moment or datetime.now(timezone.utc)
+    local = moment.astimezone(ZoneInfo(settings.TIMEZONE))
+    manual = shift is None
+    if manual:
+        shift = max((s for s in SHIFTS if int(s[:2]) <= local.hour),default='07:00')
+    logical_shift = 'manual-'+uid() if manual else shift
+    run = SchedulerRun(date=local.date().isoformat(),shift=logical_shift,status='running')
+    db.add(run)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return db.query(SchedulerRun).filter_by(date=local.date().isoformat(),shift=logical_shift).one()
+    try:
+        start,end = period_for(local.date(),shift)
+        report = generate(db,username,entity=configuration(db).get('entity',''),start=start,end=end)
+        run.report_id = report.report_id
+        run.status = 'completed'
+    except Exception:
+        db.rollback()
+        run = db.get(SchedulerRun,run.id)
+        run.status = 'failed'
+        raise
+    finally:
+        run.completed_at = now()
+        audit(db,username,'SCHEDULER_RUN',run.status,execution_id=run.id)
+        db.commit()
+    return run
 
-def load_schedule() -> ScheduleConfig:
-    if Path("data/schedule_config.json").exists():
-        try:
-            with open("data/schedule_config.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return ScheduleConfig(**data)
-        except Exception:
-            pass
-    return ScheduleConfig()
-
-
-def save_schedule(config: ScheduleConfig):
-    with open("data/schedule_config.json", "w", encoding="utf-8") as f:
-        json.dump(config.__dict__, f, indent=2)
-
-
-def log_execution(result: dict):
-    log = []
-    if Path("data/schedule_log.json").exists():
-        try:
-            with open("data/schedule_log.json", "r", encoding="utf-8") as f:
-                log = json.load(f)
-        except Exception:
-            pass
-    log.insert(0, {"timestamp": datetime.utcnow().isoformat() + "Z", **result})
-    with open("data/schedule_log.json", "w", encoding="utf-8") as f:
-        json.dump(log[:100], f, indent=2, ensure_ascii=False)
-
-
-def get_schedule_log(limit: int = 50) -> list:
-    if Path("data/schedule_log.json").exists():
-        try:
-            with open("data/schedule_log.json", "r", encoding="utf-8") as f:
-                return json.load(f)[:50]
-        except Exception:
-            pass
-    return []
-
-
-class SchedulerThread(threading.Thread):
-    def __init__(self, generate_report_func):
-        super().__init__(daemon=True)
-        self.generate_report_func = generate_report_func
-        self.running = False
-
-    def run(self):
-        self.running = True
-        while self.running:
-            config = load_schedule()
-            if not config.enabled:
-                time.sleep(60)
-                continue
-
-            now = datetime.utcnow()
-            for shift_name in config.shifts:
-                shift_time = shift_name.split("(")[1].rstrip(")")
-                hour, minute = map(int, shift_time.split(":"))
-                shift_dt = datetime(now.year, now.month, now.day, hour, minute)
-                if shift_dt <= now < shift_dt + timedelta(minutes=5):
-                    # Generar reporte
+def start_scheduler(factory):
+    stop = StopEvent()
+    def loop():
+        while not stop.is_set():
+            with factory() as db:
+                config = configuration(db)
+                moment = datetime.now(timezone.utc)
+                shift = resolve_shift(moment)
+                if config.get('enabled') and shift:
                     try:
-                        self.generate_report_func(config)
-                        log_execution({"shift": shift_name, "status": "success", "timestamp": datetime.utcnow().isoformat()})
-                    except Exception as e:
-                        log_execution({"shift": shift_name, "status": "error", "error": str(e), "timestamp": datetime.utcnow().isoformat()})
-            time.sleep(60)
-
-    def stop(self):
-        self.running = False
-
-
-_scheduler_thread: Optional[threading.Thread] = None
-
-
-def start_scheduler(generate_report_func):
-    global _scheduler_thread
-    if _scheduler_thread is None or not _scheduler_thread.is_alive():
-        _scheduler_thread = SchedulerThread(generate_report_func)
-        _scheduler_thread.start()
-
-
-def stop_scheduler():
-    global _scheduler_thread
-    if _scheduler_thread:
-        _scheduler_thread.stop()
-        _scheduler_thread = None
+                        execute(db,'scheduler',moment,shift)
+                    except Exception:
+                        import logging
+                        logging.getLogger(__name__).exception('Scheduler report failed')
+            stop.wait(30)
+    thread = Thread(target=loop,daemon=True)
+    thread.start()
+    return stop,thread

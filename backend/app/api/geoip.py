@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 from ..core.database import get_db
 from ..models.event import Event
@@ -8,23 +8,20 @@ router = APIRouter()
 
 
 @router.get("/")
+@router.get("")
 def geoip_list(db: Session = Depends(get_db)):
     """Obtener geolocalización de IPs públicas en eventos."""
-    events = db.query(Event).all()
-    events_list = [
-        {
-            "src_ip": e.source_ip,
-            "dst_ip": e.destination_ip,
-            "severity": e.severity,
-        }
-        for e in events
-    ]
-    results = get_geoip_for_events(events_list)
+    from .analytics import ip_rows
+    results = []
+    for row in ip_rows(db):
+        geo = resolve_geoip(row['ip'])
+        if geo['latitude'] is not None and geo['longitude'] is not None:
+            results.append({**geo,'event_count':row['total_count'],'severity':'Unknown'})
     return {"results": results}
 
 
 @router.post("/batch")
-def geoip_batch(ips: list[str]):
+def geoip_batch(ips: list[str] = Body(max_length=200)):
     """Resuelve geolocalización para lista de IPs."""
     results = {}
     for ip in ips:

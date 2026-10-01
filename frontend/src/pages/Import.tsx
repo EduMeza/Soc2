@@ -6,6 +6,10 @@ interface ImportResult {
   message: string;
   inserted: number;
   batch_id: string;
+  duplicates: number;
+  rejected: number;
+  total_rows: number;
+  warnings: Array<{row: number; message: string}>;
   analysis?: {
     total_events: number;
     critical: number;
@@ -129,6 +133,8 @@ export const Import: React.FC = () => {
         <section className="bg-slate-900 rounded-2xl p-6 border border-emerald-800/50 shadow-xl space-y-4">
           <h3 className="text-lg font-extrabold text-white">Resultado del análisis</h3>
           <p className="text-sm text-slate-400">Lote: <span className="font-mono text-slate-200">{result.batch_id}</span> · Insertados: {result.inserted}</p>
+          <p>Filas: {result.total_rows} · Duplicadas: {result.duplicates} · Rechazadas: {result.rejected}</p>
+          {!!result.warnings?.length && <details><summary>{result.warnings.length} advertencias</summary><ul>{result.warnings.slice(0,100).map((w,i) => <li key={i}>Fila {w.row}: {w.message}</li>)}</ul></details>}
           {result.analysis && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-slate-950 rounded-xl p-4 border border-slate-800">
@@ -145,7 +151,7 @@ export const Import: React.FC = () => {
               </div>
               <div className="bg-slate-950 rounded-xl p-4 border border-slate-800">
                 <p className="text-xs text-slate-500 uppercase">Riesgo global</p>
-                <p className="text-2xl font-extrabold text-amber-400">{result.analysis.overall_risk}%</p>
+                <p className="text-2xl font-extrabold text-amber-400">{result.analysis.overall_risk}/100</p>
               </div>
             </div>
           )}

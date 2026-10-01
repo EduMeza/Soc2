@@ -1,16 +1,7 @@
-# SOC Command Center - Start Frontend (PowerShell 5.1 compatible)
-$ErrorActionPreference = "Stop"
-
-$ScriptDir = Split-Path -Parent $PSScriptRoot
-$ProjectRoot = Join-Path $ScriptDir ".."
-$FrontendDir = Join-Path $ProjectRoot "frontend"
-
-Write-Host "=== Iniciando Frontend SOC ===" -ForegroundColor Cyan
-
-if (-not (Test-Path -LiteralPath (Join-Path $FrontendDir "node_modules"))) {
-    Write-Host "Instalando dependencias..." -ForegroundColor Yellow
-    npm install
-}
-
-Write-Host "Iniciando Vite dev server en http://localhost:5173" -ForegroundColor Green
-Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $FrontendDir -WindowStyle Normal
+. (Join-Path $PSScriptRoot 'runtime.ps1')
+try {
+    $Frontend = Join-Path $ProjectRoot 'frontend'
+    $Vite = Join-Path $Frontend 'node_modules\vite\bin\vite.js'
+    if (-not (Test-Path $Vite)) { throw 'Ejecute setup.ps1' }
+    Start-SocProcess 'frontend' $FrontendPort (Get-Command node).Source @(('"' + $Vite + '"'),'--host','localhost','--port',"$FrontendPort",'--strictPort') $Frontend "http://localhost:$FrontendPort"
+} catch { Write-Error $_; exit 1 }

@@ -1,28 +1,14 @@
-# SOC Command Center - Start SOC (PowerShell 5.1 compatible)
-$ErrorActionPreference = "Continue"
-
-$ScriptDir = Split-Path -Parent $PSScriptRoot
-$ProjectRoot = Join-Path $ScriptDir ".."
-
-Write-Host "=== SOC 24x7 Command Center - Inicio ===" -ForegroundColor Cyan
-Write-Host "Directorio: $ProjectRoot" -ForegroundColor Gray
-
-# Iniciar Backend
-Write-Host "`n[1/2] Iniciando Backend (FastAPI)..." -ForegroundColor Yellow
-Start-Process -FilePath "powershell" -ArgumentList "-File", (Join-Path $ProjectRoot "scripts\start_backend.ps1") -WorkingDirectory $ProjectRoot -WindowStyle Normal
-
-Start-Sleep -Seconds 3
-
-# Iniciar Frontend
-Write-Host "`n[2/2] Iniciando Frontend (React + Vite)..." -ForegroundColor Yellow
-Start-Process -FilePath "powershell" -ArgumentList "-File", (Join-Path $ProjectRoot "scripts\start_frontend.ps1") -WorkingDirectory $ProjectRoot -WindowStyle Normal
-
-Start-Sleep -Seconds 3
-
-Write-Host "`n=== SOC 24x7 INICIADO ===" -ForegroundColor Green
-Write-Host "Dashboard:     http://localhost:5173" -ForegroundColor Cyan
-Write-Host "API Backend:   http://localhost:8000" -ForegroundColor Cyan
-Write-Host "API Docs:      http://localhost:8000/docs" -ForegroundColor Cyan
-Write-Host "Usuario:       5205342" -ForegroundColor Gray
-Write-Host "Contraseña:    5205342" -ForegroundColor Gray
-Write-Host "`nPara detener: .\scripts\stop_soc.ps1" -ForegroundColor Gray
+$ErrorActionPreference = 'Stop'
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+try {
+    if ($env:APP_ENV -ne 'test' -and -not (Test-Path (Join-Path $ProjectRoot '.env'))) { throw 'Configure .env usando .env.example' }
+    & powershell.exe -NoProfile -File (Join-Path $PSScriptRoot 'start_backend.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'Backend no disponible' }
+    & powershell.exe -NoProfile -File (Join-Path $PSScriptRoot 'start_frontend.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'Frontend no disponible' }
+    $BackendPort = if ($env:SOC_BACKEND_PORT) { $env:SOC_BACKEND_PORT } else { '8000' }
+    $FrontendPort = if ($env:SOC_FRONTEND_PORT) { $env:SOC_FRONTEND_PORT } else { '5173' }
+    Write-Host "Frontend: http://localhost:$FrontendPort"
+    Write-Host "Backend: http://127.0.0.1:$BackendPort"
+    Write-Host "Swagger (development): http://127.0.0.1:$BackendPort/docs"
+} catch { Write-Error $_; exit 1 }

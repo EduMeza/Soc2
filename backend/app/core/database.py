@@ -1,7 +1,6 @@
 import os
-from sqlalchemy import create_engine, event
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, event, inspect
+from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 
 engine = create_engine(
@@ -21,6 +20,9 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 
 def init_db():
+    existing = inspect(engine)
+    if existing.has_table('events') and 'event_fingerprint' not in {c['name'] for c in existing.get_columns('events')}:
+        raise RuntimeError('Esquema legacy: ejecute scripts/setup.ps1 o backend/migrate.py antes de iniciar')
     Base.metadata.create_all(bind=engine)
 
 
