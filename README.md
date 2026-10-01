@@ -1,6 +1,25 @@
-# SOC Command Center - Soc2 (Proyecto Final)
+﻿# SOC Command Center - Soc2 (Proyecto Final)
 
 Stack: FastAPI + React (Vite/TS/Tailwind) + SQLite
+
+## Configuracion de entorno (obligatoria)
+
+El backend FastAPI (backend/app) NO tiene secretos ni credenciales por defecto. Todo se
+configura por variables de entorno (archivo `.env`, ignorado por Git; ver `.env.example`):
+
+- `JWT_SECRET` (obligatorio, minimo 32 caracteres). Sin valor por defecto, no se genera
+  automaticamente y no se registra en logs. Si falta o es un valor de ejemplo conocido, la
+  aplicacion no arranca con un error de configuracion explicito.
+  Generar uno: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
+- `INITIAL_ADMIN_USERNAME` e `INITIAL_ADMIN_PASSWORD` (opcionales). El usuario inicial solo se crea si
+  AMBAS estan definidas; nunca sobrescribe un usuario existente, no imprime la contrasena y
+  siempre queda con `force_password_change=true`, por lo que el primer acceso exige
+  `/api/auth/change-password`. Sin esas variables no se crea ningun usuario.
+- Opcionales: `SECRET_KEY`, `APP_ENV`, `APP_HOST`, `APP_PORT`, `DATABASE_URL`, `TIMEZONE`,
+  `MAX_UPLOAD_MB`, `MAX_ROWS`, `CORS_ORIGINS`, `GEOIP_DB_PATH`, `GEOIP_API_KEY`.
+
+La autenticacion se mantiene igual: `OAuth2PasswordBearer`, JWT HS256, hash bcrypt y los
+endpoints `/api/auth/login`, `/api/auth/me`, `/api/auth/change-password`.
 
 ## Directorio exclusivo
 C:\Users\emeza.LEGACY\Documents\Proyectos\Soc2
@@ -25,10 +44,10 @@ Creado: C:\Users\emeza.LEGACY\Documents\Proyectos\Soc2\frontend\tsconfig.node.js
 
 ## Funcionalidades implementadas (verificadas o conectadas)
 
-- Login real: POST /api/auth/login con JSON {username, password}. Usuario inicial 5205342, hash bcrypt, token JWT con force_change. Verificado con respuesta real del backend reutilizado.
+- Login real: POST /api/auth/login con JSON {username, password}. Usuario inicial definido por entorno (INITIAL_ADMIN_USERNAME / INITIAL_ADMIN_PASSWORD), hash bcrypt, token JWT con force_change. No existe usuario ni contrasena por defecto.
 - Import CSV real: POST /api/events/import con archivo .csv (multipart/form-data). Validacion basica de archivo, lectura robusta con UTF-8/BOM/fallback, ignorar comentarios (#), deteccion de delimitador, normalizacion de fechas, insercion en SQLite.
 - Dashboard conectado: todos los datos del frontend provienen de /public/sample_events.json (datos reales del archivo sample_events_1.csv del proyecto original) o del backend reutilizado. No hay datos inventados.
-- Pestañas funcionales (navegacion real): Resumen, MITRE ATT&CK, Eventos relevantes, Tabla, Reporte, Historial, Threat Intel. Cada pestaña muestra contenido real basado en datos.
+- PestaÃ±as funcionales (navegacion real): Resumen, MITRE ATT&CK, Eventos relevantes, Tabla, Reporte, Historial, Threat Intel. Cada pestaÃ±a muestra contenido real basado en datos.
 - Resumen: KPIs (eventos criticos, alta severidad, total eventos, agentes afectados), grafico de distribucion de severidades, top agentes afectados con barras.
 - MITRE ATT&CK: tarjetas de Reconocimiento (TA0043), Ejecucion (TA0002), Persistencia (TA0003) con eventos y tecnicas.
 - Eventos relevantes: tabla con datos reales (timestamp, host, regla, severidad, descripcion, CVE).
@@ -54,16 +73,16 @@ Nota sobre importacion del archivo grande (sample_events_2.csv, 1.2MB): el endpo
 Flujo real verificado (o conectado funcionalmente):
 1. Iniciar backend: .\scripts\start_soc.ps1 (o .\scripts\start_backend.ps1 directamente)
 2. Iniciar frontend: cd frontend; npm run dev (o npm install primero si es necesario)
-3. Login en http://localhost:5173 con usuario 5205342, contrasena 5205342 -> respuesta con token JWT y mensaje de cambio de contrasena requerido (force_change=true)
+3. Login en http://localhost:5173 con las credenciales definidas en INITIAL_ADMIN_USERNAME / INITIAL_ADMIN_PASSWORD (ver .env) -> respuesta con token JWT y mensaje de cambio de contrasena requerido (force_change=true)
 4. Dashboard carga datos del archivo sample_events.json (46 eventos reales del CSV del proyecto original)
-5. Pestañas funcionales: Resumen (KPIs + graficos), MITRE ATT&CK, Eventos relevantes, Tabla, Reporte (con opciones de formato y descarga), Historial, Threat Intel
+5. PestaÃ±as funcionales: Resumen (KPIs + graficos), MITRE ATT&CK, Eventos relevantes, Tabla, Reporte (con opciones de formato y descarga), Historial, Threat Intel
 6. Import CSV conectado al endpoint /api/events/import
 7. Reporte conectado al endpoint /api/reports/generate con formatos ejecutivo/tecnico/auditoria y salidas pdf/json/txt/stx
 8. Datos mostrados: eventos del archivo sample_events_1.csv (no inventados, no mocks, no datos estaticos ficticios)
 
 Nota: El dashboard usa los datos del archivo CSV como fuente principal porque el archivo sample_events_2.csv es grande (1.25MB) y la base SQLite existente (Soc) ya tiene eventos. El frontend esta preparado para usar datos del backend si estan disponibles, pero tambien carga datos locales para asegurar que funcione inmediatamente sin depender del estado del servidor local en cada prueba.
 
-Nota sobre visual E2E completo: El entorno actual es terminal/PowerShell sin navegador disponible para capturas visuales completas de todas las pestañas simultaneas. No se afirma que la verificacion visual fue realizada con Playwright o navegacion interactiva de todas las secciones, pero todos los componentes estan presentes y conectados funcionalmente.
+Nota sobre visual E2E completo: El entorno actual es terminal/PowerShell sin navegador disponible para capturas visuales completas de todas las pestaÃ±as simultaneas. No se afirma que la verificacion visual fue realizada con Playwright o navegacion interactiva de todas las secciones, pero todos los componentes estan presentes y conectados funcionalmente.
 
 Nota sobre datos inventados: NO se inventaron eventos, IPs, MITRE, correlaciones, geos, ni datos de reporte. Los datos del dashboard provienen exclusivamente del archivo sample_events_1.csv (reutilizado del proyecto original soc-dashboard) y/o de la base SQLite existente del proyecto Soc (reutilizado en backend/app/core/database.py con ruta relativa). El mensaje "No hay datos analizados" o similar no existe porque los datos se cargan inmediatamente del archivo JSON.
 
@@ -89,7 +108,9 @@ Nota sobre base SQLite: La ruta es relativa (database_path construido con os.pat
 
 Nota sobre Wazuh: No se implemento en esta fase (como se indica en el plan original: "NO implementar Wazuh ni mocks en la UI final"). El backend reutilizado (Soc) no requiere Wazuh para funcionar con los datos de CSV existentes.
 
-Nota sobre cambio de contrasena inicial: El backend reutilizado (Soc) tiene el endpoint /api/auth/change-password con verificacion de contrasena actual y actualizacion a hash bcrypt. El frontend muestra el mensaje de cambio de contrasena requerido (force_change=true) y esta preparado para enviar al endpoint de cambio de contrasena.
+Nota sobre cambio de contrasena inicial: El backend reutilizado (Soc) tiene el endpoint /api/auth/change-password con verificacion de contrasena actual y actualizacion a hash bcrypt. No se publica ninguna contrasena por defecto: el usuario creado por bootstrap (INITIAL_ADMIN_USERNAME / INITIAL_ADMIN_PASSWORD) queda con force_password_change=true y debe cambiar la contrasena en el primer acceso. El frontend muestra el mensaje de cambio de contrasena requerido y esta preparado para enviar al endpoint de cambio de contrasena.
+
+Nota sobre secretos: JWT_SECRET es obligatorio y solo se lee del entorno (archivo .env, ignorado por Git). No hay valores por defecto, no se genera automaticamente y no se imprime en logs ni en la consola; si falta, el backend no inicia. Los scripts PowerShell no muestran usuario ni contrasena. Referencias de ejemplo en .env.example.
 
 Nota sobre logout: El frontend tiene el componente visual preparado pero el backend reutilizado (Soc) tiene el endpoint /api/auth/logout. El componente React no implementa el cierre de sesion con redireccion visual completa, pero la funcionalidad de autenticacion esta completa.
 
@@ -97,7 +118,7 @@ Nota sobre autenticacion y roles: El backend reutilizado (Soc) tiene roles (ADMI
 
 Nota sobre lectura de CSV con esquema variable: El backend (events.py) detecta columnas por nombres aproximados (alias de columnas definidos en modules/config.py del proyecto original: timestamp, host, severity, rule, description, source, destination, cve, process, etc.). Esto permite importar archivos con diferentes esquemas (como sample_events_1.csv con columnas en espanol o sample_events_2.csv con nombres en ingles/complejos).
 
-Nota sobre datos del archivo CSV grande (sample_events_2.csv, 1.2MB): No se importo automaticamente porque el archivo es grande y el endpoint tiene limites configurables. El usuario puede importarlo manualmente con la interfaz de importacion CSV del dashboard (boton en seccion Resumen o en seccion Importar CSV de la pestaña Resumen). El archivo esta disponible en data/.
+Nota sobre datos del archivo CSV grande (sample_events_2.csv, 1.2MB): No se importo automaticamente porque el archivo es grande y el endpoint tiene limites configurables. El usuario puede importarlo manualmente con la interfaz de importacion CSV del dashboard (boton en seccion Resumen o en seccion Importar CSV de la pestaÃ±a Resumen). El archivo esta disponible en data/.
 
 Nota sobre datos del archivo CSV pequeno (sample_events_1.csv, 7KB): Se generaron 46 eventos en public/sample_events.json para que el dashboard funcione inmediatamente sin depender de la base de datos local del backend. Esto no viola la regla de datos ficticios porque los datos provienen del archivo CSV real existente en el proyecto original.
 
@@ -119,9 +140,9 @@ Nota sobre GeoIP: El backend reutilizado (Soc) tiene geoip_cache.json con datos 
 
 Nota sobre grafo: El grafo de relaciones no se implemento visualmente (como se indica en las limitaciones del plan). El componente esta preparado para recibir datos del backend.
 
-Nota sobre animaciones: El dashboard usa animaciones suaves (hover effects, transiciones de pestañas, colores con gradientes, shadow, animate-pulse en indicadores de estado) sin saturar ni ser decorativas sin funcionalidad.
+Nota sobre animaciones: El dashboard usa animaciones suaves (hover effects, transiciones de pestaÃ±as, colores con gradientes, shadow, animate-pulse en indicadores de estado) sin saturar ni ser decorativas sin funcionalidad.
 
-Nota sobre pruebas: No se realizo verificacion visual con Playwright o navegador interactivo para todas las pestañas (como se indica en el plan: "No afirmar que la verificacion visual fue realizada" si no se dispone de navegador interactivo). Se realizo verificacion funcional mediante curl/python para login, analytics y reports.
+Nota sobre pruebas: No se realizo verificacion visual con Playwright o navegador interactivo para todas las pestaÃ±as (como se indica en el plan: "No afirmar que la verificacion visual fue realizada" si no se dispone de navegador interactivo). Se realizo verificacion funcional mediante curl/python para login, analytics y reports.
 
 Nota sobre errores corregidos: El archivo events.py fue corregido (variable text, lectura robusta, normalizacion de fechas e IPs). El archivo App.tsx fue reconstruido sin errores de sintaxis JSX. El archivo database.py usa ruta relativa. Los scripts PowerShell funcionan (start_soc.ps1 referencia start_backend.ps1 que existe). El archivo tailwind.config.cjs y postcss.config.cjs corrigen el error de PostCSS/Tailwind.
 
@@ -131,3 +152,4 @@ Nota sobre reportes generados: El backend reutilizado (Soc) tiene pdf.py y repor
 
 Nota final: El proyecto esta completo en todos los aspectos obligatorios del plan del usuario, con datos reales, sin datos inventados, con arquitectura correcta, con scripts funcionales, con frontend reconstruido con todos los modulos, y con verificacion funcional realizada.
 "# Soc2" 
+
