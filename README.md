@@ -18,6 +18,29 @@ configura por variables de entorno (archivo `.env`, ignorado por Git; ver `.env.
 - Opcionales: `SECRET_KEY`, `APP_ENV`, `APP_HOST`, `APP_PORT`, `DATABASE_URL`, `TIMEZONE`,
   `MAX_UPLOAD_MB`, `MAX_ROWS`, `CORS_ORIGINS`, `GEOIP_DB_PATH`, `GEOIP_API_KEY`.
 
+## Instalación y migración
+
+**setup.ps1** instala dependencias pero **NO migra datos**:
+
+```powershell
+.\scripts\setup.ps1
+```
+
+Pasos siguientes tras el setup:
+1. Configure `.env` usando `.env.example` (JWT_SECRET obligatorio, INITIAL_ADMIN_USERNAME/PASSWORD opcionales).
+2. La migración de datos legacy **NO se ejecuta automáticamente**.
+3. Si necesita migrar una instalación legacy existente, **detenga el backend** y ejecute explícitamente:
+   ```powershell
+   .\backend\venv\Scripts\python.exe .\backend\migrate.py
+   ```
+   La migración genera backup en `_backup/` antes de modificar `data/soc.db`.
+4. Para iniciar el SOC:
+   ```powershell
+   .\scripts\start_soc.ps1
+   ```
+
+**No debe ejecutarse una migración como parte del arranque normal.**
+
 La autenticacion se mantiene igual: `OAuth2PasswordBearer`, JWT HS256, hash bcrypt y los
 endpoints `/api/auth/login`, `/api/auth/me`, `/api/auth/change-password`.
 
