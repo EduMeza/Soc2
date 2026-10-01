@@ -1,289 +1,110 @@
-import csv
-import io
-import re
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Query
+from datetime import datetime, timezone
+from typing import Literal
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from pydantic import BaseModel
-from ..core.database import get_db
-from ..models.event import Event
-from ..services.csv_parser import load_csv
-from ..services.analysis import analyze
-from ..services.risk import calculate_risk_score, calculate_agent_risk_scores
-from ..services.mitre import classify_mitre, classify_event_mitre, MITRE_TECHNIQUES
-from ..services.correlation import find_correlations
-from ..services.geoip import get_geoip_for_events
-from datetime import datetime
-import uuid
+from app.core.database import get_db
+from app.core.config import settings
+from app.models.event import Event
+from app.models.persistence import ImportBatch, Correlation, CorrelationEvent, now
+from app.api.auth import require_soc_user
+from app.services.csv_parser import parse_csv
+from app.services.risk import calculate_event_risk
+from app.services.correlation import persist_correlations
+from app.services.audit import audit
+from app.services.mitre import classify_with_evidence
 
 router = APIRouter()
 
+def serialize(event):
+    return {c.name: (getattr(event,c.name).replace(tzinfo=timezone.utc).isoformat() if isinstance(getattr(event,c.name),datetime)
+                    else getattr(event,c.name)) for c in Event.__table__.columns}
 
-class EventDetail(BaseModel):
-    id: int
-    timestamp: str
-    severity: str
-    hostname: str
-    source_ip: str
-    rule_id: str
-
-    class Config:
-        orm_mode = True
-
-
-def _detect_delimiter(sample: str) -> str:
+@router.post('/import')
+async def import_csv(file: UploadFile = File(...), db: Session = Depends(get_db), user=Depends(require_soc_user)):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
+        raise HTTPException(400, 'El archivo debe ser CSV')
+    content = await file.read(settings.MAX_UPLOAD_MB * 1024 * 1024 + 1)
     try:
-        sniffer = csv.Sniffer()
-        dialect = sniffer.sniff(sample, delimiters=",\t;|")
-        return dialect.delimiter
-    except Exception:
-        comma = sample.count(",")
-        semicolon = sample.count(";")
-        tab = sample.count("\t")
-        pipe = sample.count("|")
-        if semicolon > comma and semicolon > tab and semicolon > pipe:
-            return ";"
-        if tab > comma and tab > semicolon and tab > pipe:
-            return "\t"
-        if pipe > comma and pipe > semicolon and pipe > tab:
-            return "|"
-        return ","
-
-
-@router.post("/import")
-async def import_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    # Validación básica
-    if not file.filename or not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="El archivo debe ser CSV")
-
-    contents = await file.read()
-    size_mb = len(contents) / (1024 * 1024)
-
-    from ..core.config import settings
-    if size_mb > settings.MAX_UPLOAD_MB:
-        raise HTTPException(status_code=400, detail=f"Archivo excede {settings.MAX_UPLOAD_MB} MB")
-
-    # Parsear CSV usando el parser robusto
-    try:
-        df, detected_columns = load_csv(
-            contents,
-            max_mb=settings.MAX_UPLOAD_MB,
-            max_rows=settings.MAX_ROWS,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    if len(df) == 0:
-        raise HTTPException(status_code=400, detail="CSV sin datos válidos después del parsing")
-
-    # Ejecutar análisis completo
-    analysis_result = analyze(df)
-
-    # Calcular riesgo
-    events_for_risk = df.to_dict("records")
-    overall_risk = calculate_risk_score(events_for_risk)
-    agent_risks = calculate_agent_risk_scores(events_for_risk)
-
-    # Clasificar MITRE
-    mitre_classification = classify_mitre(events_for_risk)
-
-    # Correlaciones
-    correlations = find_correlations(events_for_risk)
-
-    # GeoIP
-    geoip_results = get_geoip_for_events(events_for_risk)
-
-    # Generar batch_id
-    batch_id = "batch-" + datetime.utcnow().strftime("%Y%m%d%H%M%S")
-
-    # Insertar eventos en BD
-    inserted = 0
-    correlation_map = {}
-    for i, corr in enumerate(correlations):
-        for event_idx in corr.get("event_indices", []):
-            correlation_map[event_idx] = corr.get("id", f"corr-{i}")
-
-    print(f"DataFrame shape: {df.shape}")
-    print(f"DataFrame columns: {df.columns.tolist()}")
-
-    for idx, row in df.iterrows():
-        # Validación básica de fecha
-        ts_raw = row.get("timestamp", "").strip()
-        if ts_raw:
-            try:
-                ts_str = ts_raw.replace("Z", "+00:00")
-                datetime.fromisoformat(ts_str)
-            except Exception:
-                try:
-                    datetime.strptime(ts_raw.split()[0], "%Y-%m-%d")
-                except Exception:
-                    ts_str = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-        else:
-            ts_str = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-
-        def normalize_ip(val):
-            val = (val or "").strip()
-            if not val:
-                return ""
-            import re
-            if (re.search(r"[^0-9a-fA-F.:]", val) and "." not in val and ":" not in val) or len(val) > 45:
-                return val[:50]
-            return val[:45]
-
-        correlation_id = correlation_map.get(idx, "")
-
-        mitre_tactic_name = ""
-        mitre_techniques = []
-        try:
-            text_for_mitre = " ".join(str(row.get(f, "") or "") for f in ("rule_description", "description", "rule", "process", "command", "status"))
-            mitre_counts = classify_event_mitre(text_for_mitre)
-            try:
-                raw_rid = row.get("rule_id", row.get("rule"))
-                rid = int(float(str(raw_rid))) if raw_rid not in (None, "", "nan") else None
-            except (ValueError, TypeError):
-                rid = None
-            for tactic, info in MITRE_TECHNIQUES.items():
-                rid_match = rid is not None and rid in info.get("rule_ids", [])
-                if mitre_counts.get(tactic, 0) > 0 or rid_match:
-                    mitre_tactic_name = tactic
-                    mitre_techniques = info.get("techniques", [])
-                    break
-        except Exception:
-            pass
-
-        try:
-            event = Event(
-                event_uid=row.get("id") or row.get("event_uid") or f"evt-{inserted}" or "",
-                timestamp=datetime.fromisoformat(ts_str) if ts_raw else datetime.utcnow(),
-                agent=row.get("agent", ""),
-                hostname=row.get("hostname", row.get("host", "")),
-                source=row.get("source", ""),
-                event_type=row.get("event_type", row.get("event_type", "")),
-                rule_id=row.get("rule_id", row.get("rule", "")),
-                rule_description=row.get("rule_description", row.get("description", "")),
-                severity=row.get("severity", row.get("original_severity", "INFO")),
-                original_severity=row.get("original_severity", row.get("severity", "INFO")),
-                source_ip=normalize_ip(row.get("source_ip", row.get("src_ip", row.get("source", "")))),
-                destination_ip=row.get("destination_ip", row.get("dest_ip", "")),
-                source_port=int(row.get("source_port", 0) or 0),
-                destination_port=int(row.get("destination_port", 0) or 0),
-                protocol=row.get("protocol", ""),
-                username=row.get("username", row.get("user", "")),
-                process=row.get("process", ""),
-                command=row.get("command", ""),
-                file_path=row.get("file_path", ""),
-                cve=row.get("cve", ""),
-                mitre_tactic=mitre_tactic_name,
-                mitre_technique="; ".join(mitre_techniques),
-                raw_event=str(row.to_dict()),
-                risk_score=float(row.get("risk_score", 0) or 0),
-                correlation_id=correlation_id,
-                status=row.get("status", "completed"),
-                import_batch_id=batch_id,
-            )
-            db.add(event)
-            inserted += 1
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            print(f"Error inserting row {idx}: {e}")
+        normalized, columns, warnings, rejected, total = parse_csv(content, settings.MAX_UPLOAD_MB, settings.MAX_ROWS)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    batch = ImportBatch(filename=file.filename, file_size=len(content), total_rows=total,
+        warnings=warnings, rejected=rejected, detected_columns=columns, username=user.username,
+        inserted=0, duplicates=0)
+    db.add(batch)
+    db.flush()
+    fingerprints = [e.event_fingerprint for e in normalized]
+    known = set()
+    for start in range(0, len(fingerprints), 500):
+        known.update(x[0] for x in db.query(Event.event_fingerprint).filter(Event.event_fingerprint.in_(fingerprints[start:start+500])))
+    inserted_events = []
+    for item in normalized:
+        if item.event_fingerprint in known:
+            batch.duplicates += 1
             continue
+        known.add(item.event_fingerprint)
+        values = item.model_dump()
+        evidence = classify_with_evidence(values)
+        values['mitre_evidence'] = evidence
+        risk, factors = calculate_event_risk(values)
+        event = Event(**values, import_batch_id=batch.id, risk_score=risk, risk_factors=factors,
+                      mitre_tactic='; '.join(dict.fromkeys(e['tactic'] for e in evidence)),
+                      mitre_technique='; '.join(dict.fromkeys(e['technique'] for e in evidence)), correlation_id='')
+        db.add(event)
+        inserted_events.append(event)
+        batch.inserted += 1
+    db.flush()
+    persist_correlations(db, inserted_events)
+    batch.status = 'completed'
+    batch.completed_at = now()
+    audit(db, user.username, 'CSV_IMPORT', filename=file.filename, batch_id=batch.id)
+    db.commit()
+    return {'message': 'Importación completa', 'batch_id': batch.id, 'inserted': batch.inserted,
+            'duplicates': batch.duplicates, 'rejected': rejected, 'total_rows': total,
+            'warnings': warnings, 'detected_columns': columns}
 
-    try:
-        db.commit()
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(f"Commit error: {e}")
-        db.rollback()
+SORT_FIELDS = {'id', 'timestamp', 'severity', 'hostname', 'agent', 'rule_id', 'risk_score', 'source_ip', 'destination_ip'}
 
-    # Invalidar caché de analytics (forzar recálculo)
-    return {
-        "message": "Importación completa",
-        "inserted": inserted,
-        "batch_id": batch_id,
-        "detected_columns": detected_columns,
-        "analysis": {
-            "total_events": analysis_result.total_events,
-            "critical": analysis_result.critical_count,
-            "high": analysis_result.high_count,
-            "agents": analysis_result.agents_count,
-            "cves": len(analysis_result.cves),
-            "suspicious_processes": len(analysis_result.suspicious_processes),
-            "correlations": len(correlations),
-            "overall_risk": round(overall_risk, 1),
-        },
-    }
-
-
-@router.get("/")
-def list_events(
-    page: int = 1,
-    limit: int = 50,
-    severity: Optional[str] = Query(None),
-    host: Optional[str] = Query(None),
-    agent: Optional[str] = Query(None),
-    source_ip: Optional[str] = Query(None),
-    rule: Optional[str] = Query(None),
-    mitre: Optional[str] = Query(None),
-    min_risk: Optional[float] = Query(None),
-    start_date: Optional[str] = Query(None),
-    end_date: Optional[str] = Query(None),
-    sort_by: str = Query("id"),
-    sort_order: str = Query("desc"),
-    db: Session = Depends(get_db)
-):
-    from sqlalchemy import func, or_
-    from datetime import datetime as dt
-
+@router.get('')
+@router.get('/')
+def list_events(page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=200),
+                search: str = '', severity: str = '', host: str = '', agent: str = '',
+                source_ip: str = '', rule: str = '', mitre: str = '', min_risk: float = Query(0,ge=0,le=100),
+                start_date: str = '', end_date: str = '', sort_by: str = 'id',
+                sort_order: Literal['asc','desc'] = 'desc', db: Session = Depends(get_db)):
+    if sort_by not in SORT_FIELDS:
+        raise HTTPException(422, 'sort_by inválido')
     query = db.query(Event)
-
-    # Filtros
+    if search:
+        query = query.filter(or_(*(getattr(Event, k).ilike('%' + search + '%') for k in
+            ['rule_description','rule_id','hostname','agent','source_ip','destination_ip','process','cve'])))
+    for column, value in [(Event.hostname, host), (Event.agent, agent), (Event.source_ip, source_ip), (Event.rule_id, rule)]:
+        if value:
+            query = query.filter(column.ilike('%' + value + '%'))
     if severity:
         query = query.filter(Event.severity == severity)
-    if host:
-        query = query.filter(Event.hostname.ilike(f"%{host}%"))
-    if agent:
-        query = query.filter(Event.agent.ilike(f"%{agent}%"))
-    if source_ip:
-        query = query.filter(Event.source_ip.ilike(f"%{source_ip}%"))
-    if rule:
-        query = query.filter(Event.rule_id.ilike(f"%{rule}%"))
     if mitre:
-        query = query.filter(or_(Event.mitre_tactic.ilike(f"%{mitre}%"), Event.mitre_technique.ilike(f"%{mitre}%")))
-    if min_risk:
-        query = query.filter(Event.risk_score >= min_risk)
-    if start_date:
-        try:
-            query = query.filter(Event.timestamp >= dt.fromisoformat(start_date.replace("Z", "+00:00")))
-        except:
-            pass
-    if end_date:
-        try:
-            query = query.filter(Event.timestamp <= dt.fromisoformat(end_date.replace("Z", "+00:00")))
-        except:
-            pass
-
-    # Ordenamiento
-    if hasattr(Event, sort_by):
-        order_col = getattr(Event, sort_by)
-        if sort_order == "desc":
-            query = query.order_by(order_col.desc())
-        else:
-            query = query.order_by(order_col.asc())
-    else:
-        query = query.order_by(Event.id.desc())
-
+        query = query.filter(or_(Event.mitre_tactic.ilike('%'+mitre+'%'), Event.mitre_technique.ilike('%'+mitre+'%')))
+    query = query.filter(Event.risk_score >= min_risk)
+    try:
+        if start_date:
+            query = query.filter(Event.timestamp >= datetime.fromisoformat(start_date.replace('Z','+00:00')))
+        if end_date:
+            query = query.filter(Event.timestamp <= datetime.fromisoformat(end_date.replace('Z','+00:00')))
+    except ValueError:
+        raise HTTPException(422, 'Fecha inválida')
     total = query.count()
-    events = query.offset((page - 1) * limit).limit(limit).all()
+    column = getattr(Event, sort_by)
+    query = query.order_by(column.asc() if sort_order == 'asc' else column.desc(), Event.id)
+    return {'items': [serialize(e) for e in query.offset((page-1)*limit).limit(limit)], 'total':total, 'page':page, 'limit':limit}
 
-    def serialize(ev):
-        return {k: getattr(ev, k) for k in [
-            "id", "event_uid", "timestamp", "agent", "hostname", "source", "event_type",
-            "rule_id", "rule_description", "severity", "original_severity", "source_ip",
-            "destination_ip", "source_port", "destination_port", "protocol", "username",
-            "process", "command", "file_path", "cve", "mitre_tactic", "mitre_technique",
-            "raw_event", "risk_score", "correlation_id", "status", "import_batch_id"
-        ] if hasattr(ev, k)}
-
-    return {"items": [serialize(e) for e in events], "total": total, "page": page, "limit": limit}
+@router.get('/{event_id}')
+def event_detail(event_id: int, db: Session = Depends(get_db)):
+    event = db.get(Event, event_id)
+    if not event:
+        raise HTTPException(404, 'Evento no encontrado')
+    result = serialize(event)
+    result['correlations'] = [{'id':c.id,'title':c.title,'evidence':c.evidence} for c in db.query(Correlation)
+        .join(CorrelationEvent,CorrelationEvent.correlation_id == Correlation.id).filter(CorrelationEvent.event_id == event.id)]
+    return result

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 
 interface TimelineEvent {
   timestamp: string;
@@ -15,18 +16,21 @@ interface TimelineEvent {
 }
 
 export const Timeline: React.FC = () => {
+  const revision = useDataRevision();
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
-  const [selectedSequence, setSelectedSequence] = useState<any>(null);
+  const [sequences, setSequences] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchTimeline = async () => {
       try {
         const data = await api.getTimeline(200);
         setTimeline(data);
+        const attackData = await api.request<{sequences: any[]}>('/analytics/attack-sequences');
+        setSequences(attackData.sequences);
       } catch (error) {
         setError('No se pudo cargar la línea temporal. Recargue para reintentar.');
         console.error('Error fetching timeline:', error);
@@ -35,7 +39,7 @@ export const Timeline: React.FC = () => {
       }
     };
     fetchTimeline();
-  }, []);
+  }, [revision]);
 
   const severityColor = (severity: string) => {
     switch (severity) {
@@ -64,6 +68,8 @@ export const Timeline: React.FC = () => {
       </div>
 
       {error && <div role="alert" className="error-panel">{error}</div>}
+      {!error && sequences.length === 0 && <p>No se identificó una secuencia de ataque con evidencia suficiente.</p>}
+      {sequences.map(s => <section key={s.correlation_id}><h3>Secuencia {s.correlation_id}</h3><pre className="whitespace-pre-wrap">{JSON.stringify(s,null,2)}</pre></section>)}
       <input className="input-field" aria-label="Filtrar línea temporal" placeholder="Buscar host, regla o descripción…" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} />
       {timeline.length === 0 ? (
         <div className="bg-slate-900 rounded-2xl p-12 border border-slate-800 shadow-xl text-center">

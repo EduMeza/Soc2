@@ -1,7 +1,6 @@
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend'))
-import database, auth_config
-print('Imports OK')
-print('Initial user:', auth_config.INITIAL_USERNAME)
-print('Force change:', auth_config.FORCE_CHANGE)
-print('Hash length:', len(auth_config.INITIAL_HASH))
+"""Compatibility launcher for isolated authentication tests."""
+from pathlib import Path
+import subprocess
+import sys
+if __name__ == '__main__':
+    raise SystemExit(subprocess.call([sys.executable,'-m','pytest','tests/test_auth_scheduler.py','-v'],cwd=Path(__file__).resolve().parent))

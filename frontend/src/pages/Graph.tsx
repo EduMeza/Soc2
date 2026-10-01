@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 import { RelationshipGraph, GraphNodeData } from '../graphs/RelationshipGraph';
 
 interface GraphNode {
@@ -20,6 +21,7 @@ interface GraphEdge {
 }
 
 export const Graph: React.FC = () => {
+  const revision = useDataRevision();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[]; edges: GraphEdge[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export const Graph: React.FC = () => {
       }
     };
     fetchGraph();
-  }, []);
+  }, [revision]);
 
   const handleNodeClick = (node: import('../graphs/RelationshipGraph').GraphNode) => {
     setSelectedNode(node);

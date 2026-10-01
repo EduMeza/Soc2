@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 import { EventDetailDrawer } from '../components/events/EventDetailDrawer';
 
 interface EventItem {
@@ -34,6 +36,10 @@ interface EventItem {
 }
 
 export const Events: React.FC = () => {
+  const navigate = useNavigate();
+  const requestSequence = useRef(0);
+  const revision = useDataRevision();
+  const [error, setError] = useState('');
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -57,7 +63,9 @@ export const Events: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
   const fetchEvents = async () => {
+    const sequence = ++requestSequence.current;
     setLoading(true);
+    setError('');
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());
@@ -67,21 +75,24 @@ export const Events: React.FC = () => {
         if (value) params.append(key, value);
       });
 
-      const response = await api.getEvents(page, limit);
+      const response = await api.getEvents(page, limit, params.toString());
+      if (sequence !== requestSequence.current) return;
       if (response.items) {
         setEvents(response.items);
         setTotal(response.total);
       }
     } catch (error) {
+      if (sequence !== requestSequence.current) return;
+      setError(error instanceof Error ? error.message : 'No se pudieron cargar los eventos');
       console.error('Error fetching events:', error);
     } finally {
-      setLoading(false);
+      if (sequence === requestSequence.current) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchEvents();
-  }, [page, filters]);
+  }, [page, filters, revision]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -118,8 +129,15 @@ export const Events: React.FC = () => {
     }
   };
 
-  const openEventDetail = (event: EventItem) => {
-    setSelectedEvent(event);
+  const openEventDetail = async (event: EventItem) => {
+    try { setSelectedEvent(await api.request<EventItem>(`/events/${event.id}`)); }
+    catch(e: any) { setError(e.message); }
+  };
+
+  const exportPage = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(events,null,2)], {type:'application/json'}));
+    const link = document.createElement('a'); link.href = url; link.download = `events-page-${page}.json`; link.click();
+    requestAnimationFrame(() => URL.revokeObjectURL(url));
   };
 
   const closeEventDetail = () => {
@@ -128,17 +146,18 @@ export const Events: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {error && <p role="alert" className="text-red-400">{error}</p>}
       <div className="flex flex-col sm:flex-row gap-4 items-start justify-between">
         <div>
           <h2 className="text-2xl font-extrabold text-white">Eventos</h2>
           <p className="text-slate-400 text-sm">Gestión y análisis de eventos de seguridad</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition">
+          <button onClick={() => navigate('/import')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition">
             Importar CSV
           </button>
-          <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition">
-            Exportar
+          <button onClick={exportPage} disabled={loading || !events.length} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition">
+            Exportar página JSON
           </button>
         </div>
       </div>
@@ -353,7 +372,7 @@ export const Events: React.FC = () => {
                       <td className="px-4 py-2 text-xs text-amber-300 font-mono">{e.cve || '-'}</td>
                       <td className="px-4 py-2">
                         <span className={`px-2 py-0.5 text-xs font-bold rounded ${e.risk_score >= 70 ? 'bg-red-900 text-red-300' : e.risk_score >= 40 ? 'bg-orange-900 text-orange-300' : e.risk_score >= 20 ? 'bg-yellow-900 text-yellow-300' : 'bg-green-900 text-green-300'}`}>
-                          {Math.round(e.risk_score || 0)}%
+                          {Math.round(e.risk_score || 0)}/100
                         </span>
                       </td>
                       <td className="px-4 py-2 text-center">

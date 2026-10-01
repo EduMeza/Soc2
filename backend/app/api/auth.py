@@ -1,15 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from ..core import security
-from ..core.config import settings
-from ..core.database import get_db
-from ..models.user import User
-from datetime import datetime
+from datetime import timedelta
+
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from app.core import security
+from app.core.config import settings
+from app.core.database import get_db
+from app.models.persistence import AuditLog, now
+from app.models.user import User
+from app.services.audit import audit
+
 
 router = APIRouter()
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
@@ -20,99 +25,204 @@ class LoginRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str
+    new_password: str = Field(min_length=8, max_length=72)
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str
-    force_change: bool
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    try:
-        payload = security.decode_access_token(token)
-        username: str = payload.get("sub")
-        if username is None:
-            raise HTTPException(status_code=401, detail="Token inválido")
-    except Exception:
-        raise HTTPException(status_code=401, detail="Token inválido o expirado")
-
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Usuario no encontrado")
-    return user
-
-
-@router.post("/login", response_model=TokenResponse)
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == req.username).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    if not security.verify_password(req.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = security.create_access_token({"sub": user.username, "force_change": user.force_password_change})
-    return {"access_token": token, "token_type": "bearer", "force_change": user.force_password_change}
-
-
-@router.get("/me")
-def me(user: User = Depends(get_current_user)):
-    return {"username": user.username, "force_change": user.force_password_change}
-
-
-@router.post("/logout")
-def logout():
-    # En JWT stateless, el logout se maneja en el frontend borrando el token
-    return {"message": "Logged out successfully"}
-
-
-@router.post("/change-password")
-def change_password(req: ChangePasswordRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not security.verify_password(req.current_password, current_user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid current password")
-    current_user.password_hash = security.hash_password(req.new_password)
-    current_user.force_password_change = False
-    db.commit()
-    return {"message": "Password changed successfully"}
-
-
-# Bootstrap usuario inicial (solo si INITIAL_USER e INITIAL_PASSWORD estan configurados)
-from ..core.database import Base, SessionLocal, engine
-
-
-def bootstrap_initial_user() -> bool:
-    """Crea el usuario inicial unicamente con configuracion explicita del entorno.
-
-    - No se ejecuta sin INITIAL_USER e INITIAL_PASSWORD definidos.
-    - No sobrescribe usuarios existentes.
-    - No imprime la contrasena.
-    - El usuario creado queda con force_password_change=True.
-    """
+def bootstrap(db: Session) -> bool:
+    """Crea el usuario inicial solo con credenciales explícitas del entorno."""
     credentials = security.get_bootstrap_credentials()
+
     if credentials is None:
-        if settings.INITIAL_USER or settings.INITIAL_PASSWORD:
+        if (
+            settings.INITIAL_ADMIN_USERNAME
+            or settings.INITIAL_ADMIN_PASSWORD
+        ):
             print(
-                "[auth] Bootstrap omitido: se requieren INITIAL_USER e INITIAL_PASSWORD "
-                "configurados de forma explicita."
+                "[auth] Bootstrap omitido: se requieren "
+                "INITIAL_ADMIN_USERNAME e INITIAL_ADMIN_PASSWORD."
             )
         return False
 
     username, password = credentials
-    with SessionLocal() as db:
-        if db.query(User).filter(User.username == username).first():
-            return False
-        db.add(
-            User(
-                username=username,
-                password_hash=security.hash_password(password),
-                force_password_change=True,
-            )
+
+    # No sobrescribir ni crear otro usuario inicial si ya existen usuarios.
+    if db.query(User).count():
+        return False
+
+    if len(password) < 8 or len(password.encode("utf-8")) > 72:
+        raise ValueError(
+            "INITIAL_ADMIN_PASSWORD debe tener al menos 8 caracteres "
+            "y como máximo 72 bytes"
         )
-        db.commit()
-    print("[auth] Usuario inicial creado desde el entorno. Se requiere cambio de contrasena en el primer acceso.")
+
+    db.add(
+        User(
+            username=username,
+            password_hash=security.hash_password(password),
+            force_password_change=True,
+        )
+    )
+    db.commit()
+
+    # Nunca imprimir la contraseña.
+    print(
+        "[auth] Usuario inicial creado desde variables de entorno. "
+        "Se requiere cambio de contraseña en el primer acceso."
+    )
     return True
 
 
-Base.metadata.create_all(bind=engine)
-bootstrap_initial_user()
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+):
+    try:
+        payload = security.decode_access_token(token)
+        username = payload.get("sub")
+
+        if not username:
+            raise HTTPException(401, "Token inválido")
+
+        user = db.query(User).filter_by(username=username).first()
+
+        if not user or payload.get("version") != user.token_version:
+            raise HTTPException(401, "Token inválido")
+
+        return user
+
+    except JWTError:
+        raise HTTPException(401, "Token inválido o expirado")
+
+
+def require_soc_user(user: User = Depends(get_current_user)):
+    if user.force_password_change:
+        raise HTTPException(
+            403,
+            "Debe cambiar su contraseña antes de acceder al SOC",
+        )
+
+    return user
+
+
+@router.post("/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    failures = (
+        db.query(AuditLog)
+        .filter(
+            AuditLog.username == req.username,
+            AuditLog.action == "LOGIN_FAILURE",
+            AuditLog.timestamp > now() - timedelta(minutes=30),
+        )
+        .count()
+    )
+
+    if failures >= 5:
+        raise HTTPException(
+            429,
+            "Demasiados intentos. Espere 30 minutos.",
+        )
+
+    user = db.query(User).filter_by(username=req.username).first()
+
+    try:
+        valid = (
+            user is not None
+            and security.verify_password(
+                req.password,
+                user.password_hash,
+            )
+        )
+    except ValueError:
+        valid = False
+
+    if not valid:
+        audit(
+            db,
+            req.username,
+            "LOGIN_FAILURE",
+            "failure",
+        )
+        db.commit()
+        raise HTTPException(401, "Credenciales inválidas")
+
+    token = security.create_access_token(
+        {
+            "sub": user.username,
+            "version": user.token_version,
+        }
+    )
+
+    audit(db, user.username, "LOGIN_SUCCESS")
+    db.commit()
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "force_change": user.force_password_change,
+    }
+
+
+@router.get("/me")
+def me(user: User = Depends(get_current_user)):
+    return {
+        "username": user.username,
+        "force_change": user.force_password_change,
+    }
+
+
+@router.post("/logout")
+def logout(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Incrementar token_version invalida los JWT emitidos anteriormente.
+    user.token_version += 1
+    db.commit()
+
+    return {"message": "Sesión cerrada"}
+
+
+@router.post("/change-password")
+def change_password(
+    req: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not security.verify_password(
+        req.current_password,
+        user.password_hash,
+    ):
+        raise HTTPException(
+            400,
+            "Contraseña actual incorrecta",
+        )
+
+    if len(req.new_password.encode("utf-8")) > 72:
+        raise HTTPException(
+            422,
+            "Contraseña demasiado larga",
+        )
+
+    user.password_hash = security.hash_password(
+        req.new_password
+    )
+    user.force_password_change = False
+
+    # Invalida el token anterior después del cambio de contraseña.
+    user.token_version += 1
+
+    audit(
+        db,
+        user.username,
+        "PASSWORD_CHANGE",
+    )
+    db.commit()
+
+    return {
+        "access_token": security.create_access_token(
+            {
+                "sub": user.username,
+                "version": user.token_version,
+            }
+        )
+    }

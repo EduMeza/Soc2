@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, JSON
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -31,5 +31,8 @@ class Event(Base):
     risk_score = Column(Float)
     correlation_id = Column(String, index=True)
     status = Column(String)
-    import_batch_id = Column(String, index=True)
+    import_batch_id = Column(String, ForeignKey('import_batches.id'), index=True)
+    event_fingerprint = Column(String, unique=True, index=True)
+    risk_factors = Column(JSON, default=dict)
+    mitre_evidence = Column(JSON, default=list)
     created_at = Column(DateTime, server_default=func.now())

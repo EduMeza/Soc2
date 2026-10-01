@@ -24,6 +24,12 @@ env/
 
 # Reportes generados
 backend/output/
+output/
+backend/venv/
+.runtime/
+_backup/
+frontend/test-results/
+frontend/playwright-report/
 
 # Logs
 *.log

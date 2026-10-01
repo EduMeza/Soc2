@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(userData);
           setForceChange(userData.force_change);
         } catch {
-          localStorage.removeItem('access_token');
+          api.setToken(null);
         }
       }
       setIsLoading(false);
@@ -42,10 +42,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setForceChange(data.force_change);
   };
 
-  const logout = () => {
-    api.logout();
-    setUser(null);
-    setForceChange(false);
+  const logout = async () => {
+    try { await api.logout(); }
+    finally { setUser(null); setForceChange(false); }
   };
 
   const changePassword = async (current: string, newPass: string) => {

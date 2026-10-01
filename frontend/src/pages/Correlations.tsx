@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 
 interface Correlation {
   id: string;
@@ -17,6 +18,7 @@ interface Correlation {
 }
 
 export const Correlations: React.FC = () => {
+  const revision = useDataRevision();
   const [correlations, setCorrelations] = useState<Correlation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +34,7 @@ export const Correlations: React.FC = () => {
       }
     };
     fetchCorrelations();
-  }, []);
+  }, [revision]);
 
   const severityColor = (severity: string) => {
     switch (severity) {
@@ -92,8 +94,8 @@ export const Correlations: React.FC = () => {
                   <p className="font-bold text-amber-400">{corr.risk}/100</p>
                 </div>
                 <div className="bg-slate-950 rounded-xl p-3 border border-slate-800">
-                  <p className="text-xs text-slate-400" title="Indicador heurístico basado en volumen; no confirma un ataque">Soporte por volumen</p>
-                  <p className="font-bold text-emerald-400">{(corr.confidence * 100).toFixed(0)}%</p>
+                  <p className="text-xs text-slate-400" title="Coincidencia de IP, host, regla y ventana temporal; no es una probabilidad de compromiso">Soporte de evidencia</p>
+                  <p className="font-bold text-emerald-400">{corr.confidence.toFixed(2)}/1</p>
                 </div>
                 <div className="bg-slate-950 rounded-xl p-3 border border-slate-800">
                   <p className="text-xs text-slate-400">Eventos</p>

@@ -34,9 +34,10 @@ class ApiClient {
     return !!this.token;
   }
 
-  private async request<T>(
+  async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    responseType: 'json' | 'blob' = 'json'
   ): Promise<T> {
     const headers: HeadersInit = {
       ...(options.headers || {}),
@@ -54,9 +55,10 @@ class ApiClient {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
-    });
+    }).catch(() => { throw new Error('Backend no disponible. Verifique que el servicio esté iniciado.'); });
 
     if (response.status === 401) {
+      if (endpoint === '/auth/login') throw new Error('Credenciales inválidas');
       this.setToken(null);
       window.location.href = '/login';
       throw new Error('Sesión expirada');
@@ -64,14 +66,14 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-      throw new Error(error.detail || `Error ${response.status}`);
+      throw new Error(typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || `Error ${response.status}`));
     }
 
     if (response.status === 204) {
       return {} as T;
     }
 
-    return response.json();
+    return responseType === 'blob' ? response.blob() as Promise<T> : response.json();
   }
 
   // Auth
@@ -89,7 +91,8 @@ class ApiClient {
   }
 
   async logout() {
-    this.setToken(null);
+    try { await this.request('/auth/logout', { method: 'POST' }); }
+    finally { this.setToken(null); }
   }
 
   async getCurrentUser() {
@@ -97,26 +100,31 @@ class ApiClient {
   }
 
   async changePassword(current_password: string, new_password: string) {
-    return this.request('/auth/change-password', {
+    const data = await this.request<{ access_token: string }>('/auth/change-password', {
       method: 'POST',
       body: JSON.stringify({ current_password, new_password }),
     });
+    this.setToken(data.access_token);
+    return data;
   }
 
   // Events
   async importCsv(file: File): Promise<{ message: string; inserted: number; batch_id: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.request('/events/import', {
+    const result = await this.request<{ message: string; inserted: number; batch_id: string }>('/events/import', {
       method: 'POST',
       body: formData,
       headers: {},
     });
+    window.dispatchEvent(new Event('soc-data-changed'));
+    localStorage.setItem('soc-data-version', String(Date.now()));
+    return result;
   }
 
-  async getEvents(page = 1, limit = 50) {
+  async getEvents(page = 1, limit = 50, filters = '') {
     return this.request<{ items: any[]; total: number; page: number; limit: number }>(
-      `/events/?page=${page}&limit=${limit}`
+      `/events/?page=${page}&limit=${limit}&${filters}`
     );
   }
 
@@ -263,16 +271,7 @@ class ApiClient {
   }
 
   async downloadReport(format: 'pdf' | 'txt' | 'json', reportId: string): Promise<Blob> {
-    const response = await fetch(`${API_BASE_URL}/reports/download/${format}/${encodeURIComponent(reportId)}`, {
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-    });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || `No se pudo descargar el reporte (HTTP ${response.status})`);
-    }
-    return response.blob();
+    return this.request<Blob>(`/reports/download/${format}/${encodeURIComponent(reportId)}`, {}, 'blob');
   }
 }
 

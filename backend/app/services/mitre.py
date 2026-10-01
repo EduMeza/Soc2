@@ -72,6 +72,27 @@ TACTIC_SLUGS = {
     "Comando y Control": "comando_y_control",
 }
 
+# Evidence-bearing mappings used by the runtime. Broad legacy keyword matches
+# above remain reference metadata, not sufficient evidence for a persisted mapping.
+EVIDENCE_RULES = [
+    ('Persistencia','TA0003','T1546.011',r'\bApplication Compatibility Database launched\b'),
+    ('Acceso a credenciales','TA0006','T1003.001',r'\bmimikatz\b|\blsass(?:\.exe)?[^\r\n]{0,40}\bdump\b'),
+    ('Ejecución','TA0002','T1059.001',r'powershell[^\r\n]{0,160}(?:-enc\b|encodedcommand\b|downloadstring)'),
+    ('Persistencia','TA0003','T1053.005',r'schtasks\s+/create|scheduled task created'),
+    ('Persistencia','TA0003','T1547.001',r'\\currentversion\\run(?:once)?\b'),
+    ('Evasión de defensas','TA0005','T1562.001',r'(?:disable|stop)[^\r\n]{0,60}(?:defender|antivirus)'),
+    ('Comando y Control','TA0011','T1071.001',r'cobalt strike[^\r\n]{0,80}beacon|beacon[^\r\n]{0,80}cobalt strike'),
+]
+
+def classify_with_evidence(event):
+    text = ' '.join(str(event.get(k) or '') for k in ['rule_description','process','command'])
+    evidence = []
+    for tactic,tactic_id,technique,pattern in EVIDENCE_RULES:
+        match = re.search(pattern,text,re.I)
+        if match:
+            evidence.append({'tactic':tactic,'tactic_id':tactic_id,'technique':technique,'pattern':pattern,'evidence':match.group()})
+    return evidence
+
 
 TACTIC_SLUG_TO_NAME = {
     "reconocimiento": "Reconocimiento",

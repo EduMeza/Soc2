@@ -26,6 +26,8 @@ interface EventItem {
   mitre_technique: string;
   raw_event: string;
   risk_score: number;
+  risk_factors?: Record<string, number>;
+  mitre_evidence?: Array<Record<string, string>>;
   correlation_id: string;
   status: string;
   import_batch_id: string;
@@ -142,9 +144,11 @@ export const EventDetailDrawer: React.FC<EventDetailDrawerProps> = ({
             </div>
             <div className="bg-slate-950 rounded-xl p-4 border border-slate-800">
               <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Riesgo</p>
-              <p className="font-bold text-lg text-emerald-400">{Math.round(event.risk_score || 0)}%</p>
+              <p className="font-bold text-lg text-emerald-400">{Math.round(event.risk_score || 0)}/100</p>
             </div>
           </section>
+
+          <section><h4>Factores de riesgo y evidencia MITRE</h4><pre className="whitespace-pre-wrap text-sm">{JSON.stringify({risk_factors:event.risk_factors,mitre_evidence:event.mitre_evidence},null,2)}</pre></section>
 
           {/* Description */}
           <section>

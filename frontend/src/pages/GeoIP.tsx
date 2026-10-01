@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { useDataRevision } from '../hooks/useDataRevision';
 import { GeoThreatMap } from '../maps/GeoThreatMap';
 
 interface GeoIPPoint {
@@ -17,6 +18,7 @@ interface GeoIPPoint {
 }
 
 export const GeoIP: React.FC = () => {
+  const revision = useDataRevision();
   const [geoipData, setGeoipData] = useState<GeoIPPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export const GeoIP: React.FC = () => {
       }
     };
     fetchGeoIP();
-  }, [retry]);
+  }, [retry, revision]);
 
   if (loading) {
     return (

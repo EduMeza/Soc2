@@ -17,7 +17,7 @@ import { Settings } from './pages/Settings';
 import './index.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, forceChange } = useAuth();
 
   if (isLoading) {
     return (
@@ -30,6 +30,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  if (forceChange) return <div className="min-h-screen bg-slate-950 p-8"><Settings /></div>;
 
   return <>{children}</>;
 };

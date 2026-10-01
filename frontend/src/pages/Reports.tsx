@@ -157,7 +157,7 @@ export const Reports: React.FC = () => {
                     <td className="p-2 border border-slate-700 text-right font-bold">{r.total_events.toLocaleString()}</td>
                     <td className="p-2 border border-slate-700 text-red-400 font-bold">{r.critical}</td>
                     <td className="p-2 border border-slate-700 text-orange-400 font-bold">{r.high}</td>
-                    <td className="p-2 border border-slate-700 text-amber-400 font-bold">{r.risk_score}%</td>
+                    <td className="p-2 border border-slate-700 text-amber-400 font-bold">{r.risk_score}/100</td>
                     <td className="p-2 border border-slate-700">
                       <div className="flex gap-1">
                         {(['pdf', 'txt', 'json'] as const).map((f) => (
