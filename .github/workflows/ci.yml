@@ -37,12 +37,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install -r backend/requirements.txt
 
       # Comprueba solo la sintaxis: compila los .py del repositorio sin importar
       # ni ejecutar el codigo, por lo que no toca bases de datos ni credenciales.
       - name: Check Python syntax
         run: python -m compileall -q -x '(node_modules|venv|\.venv|\.git)' .
+
+      # Ejecuta tests aislados con base de datos temporal.
+      - name: Run tests
+        run: python -m pytest
 
   frontend:
     name: Frontend (Node.js)
